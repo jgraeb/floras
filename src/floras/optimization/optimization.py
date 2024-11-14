@@ -62,13 +62,6 @@ class MILP():
         G_minus_I = deepcopy(G)
         G_minus_I.remove_nodes_from(self.cleaned_intermed)
 
-        # create S and remove self-loops
-        S = self.SD.graph
-        to_remove = []
-        for i, j in S.edges:
-            if i == j:
-                to_remove.append((i,j))
-        S.remove_edges_from(to_remove)
         self.model_edges = list(G.edges)
         self.model_nodes = list(G.nodes)
 
@@ -79,9 +72,19 @@ class MILP():
         self.sink = self.GD.sink
         self.inter = self.cleaned_intermed
 
-        self.model_s_edges = list(S.edges)
-        self.model_s_nodes = list(S.nodes)
-        self.s_sink = self.SD.acc_sys
+        # create S and remove self-loops
+        if self.type != 'static':
+            S = self.SD.graph
+            to_remove = []
+            for i, j in S.edges:
+                if i == j:
+                    to_remove.append((i,j))
+            S.remove_edges_from(to_remove)
+            self.model_s_edges = list(S.edges)
+            self.model_s_nodes = list(S.nodes)
+            self.s_sink = self.SD.acc_sys
+        else:
+            S = None
 
         return G, S, G_minus_I
 
@@ -108,8 +111,12 @@ class MILP():
         self.no_flow_in_source_out_sink_constraints(f)
         self.cut_constraints(f,d)
         self.partition_constraints(d,m)
-        self.static_constraints(d)
         self.bidirectional_constraints(d)
+
+        if self.GD.custom_map:
+            self.custom_static_constraints(d)
+        else:
+            self.static_constraints(d)
 
     def reactive_model(self):
         # for the flow on S
@@ -134,6 +141,7 @@ class MILP():
         self.no_flow_in_source_out_sink_constraints(f)
         self.cut_constraints(f,d)
         self.partition_constraints(d,m)
+        self.do_not_cut_edges(d)
 
         # --------- add feasibility constraints to preserve flow F_s >=1 on S for every q
         node_list = []
@@ -259,13 +267,38 @@ class MILP():
                 if out_state == self.GD.node_dict[imap][0] and in_state == self.GD.node_dict[jmap][0]:
                     self.model.addConstr(d[i, j] == d[imap, jmap])
 
+    def do_not_cut_edges(self,d):
+        # ---------- do not cut edges that would introduce dead ends
+        do_not_cut = [edge for edge in self.GD.do_not_cut if edge in self.model_edges]
+        self.model.addConstrs((d[i, j] == 0 for (i,j) in do_not_cut), name='d_do_not_cut')
+
+
+    def custom_static_constraints(self,d):
+        # st()
+        for count, (i,j) in enumerate(self.model_edges):
+            out_state = self.GD.custom_map[self.GD.node_dict[i][0]]
+            in_state = self.GD.custom_map[self.GD.node_dict[j][0]]
+            for (imap,jmap) in self.model_edges[count+1:]:
+                if out_state == self.GD.custom_map[self.GD.node_dict[imap][0]] and in_state == self.GD.custom_map[self.GD.node_dict[jmap][0]]:
+                    self.model.addConstr(d[i, j] == d[imap, jmap])
+
+
     def bidirectional_constraints(self,d):
         # ---------  add bidirectional cuts on G (for static examples)
+        # st()
         for count, (i,j) in enumerate(self.model_edges):
-            out_state = self.GD.node_dict[i][0]
-            in_state = self.GD.node_dict[j][0]
+            # out_state = self.GD.node_dict[i][0]
+            # in_state = self.GD.node_dict[j][0]
+            out_state = self.GD.custom_map[self.GD.node_dict[i][0]]
+            in_state = self.GD.custom_map[self.GD.node_dict[j][0]]
             for (imap,jmap) in self.model_edges[count+1:]:
-                if in_state == self.GD.node_dict[imap][0] and out_state == self.GD.node_dict[jmap][0]:
+                if in_state == self.GD.custom_map[self.GD.node_dict[imap][0]] and out_state == self.GD.custom_map[self.GD.node_dict[jmap][0]]:
+                    # st()
+                    # print(f'Adding bidir constraint from {i} to {j} via {imap} and {jmap}')
+                    # print(f'States are {self.GD.node_dict[i]} to {self.GD.node_dict[j]}')
+                    # print(f'other dir = {self.GD.node_dict[imap]} to {self.GD.node_dict[jmap]}')
+                    # print('---')
+                    # st()
                     self.model.addConstr(d[i, j] == d[imap, jmap])
 
     def setup_model(self):
@@ -336,7 +369,7 @@ class MILP():
             exit_status = 'inf'
             self.model._data["status"] = "inf/unbounded"
             return 0,0,exit_status
-        elif self.model.status == 11 and model.SolCount < 1:
+        elif self.model.status == 11 and self.model.SolCount < 1:
             exit_status = 'not solved'
             self.model._data["status"] = "not_solved"
             self.model._data["exit_status"] = exit_status
@@ -413,11 +446,11 @@ def cb(model, where):
             model._cur_obj = obj
 
         if sol_count >= 1:
-            if time.time() - model._time > 60:
+            if time.time() - model._time > 600:
                 model._data["term_condition"] = "Obj not changing"
                 model.terminate()
         else:
             # Total termination time if the optimizer has not found anything in 5 min:
-            if time.time() - model._time > 600:
+            if time.time() - model._time > 3600*7:
                 model._data["term_condition"] = "Timeout"
                 model.terminate()
