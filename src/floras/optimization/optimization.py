@@ -285,21 +285,21 @@ class MILP():
 
     def bidirectional_constraints(self,d):
         # ---------  add bidirectional cuts on G (for static examples)
-        # st()
-        for count, (i,j) in enumerate(self.model_edges):
-            # out_state = self.GD.node_dict[i][0]
-            # in_state = self.GD.node_dict[j][0]
-            out_state = self.GD.custom_map[self.GD.node_dict[i][0]]
-            in_state = self.GD.custom_map[self.GD.node_dict[j][0]]
-            for (imap,jmap) in self.model_edges[count+1:]:
-                if in_state == self.GD.custom_map[self.GD.node_dict[imap][0]] and out_state == self.GD.custom_map[self.GD.node_dict[jmap][0]]:
-                    # st()
-                    # print(f'Adding bidir constraint from {i} to {j} via {imap} and {jmap}')
-                    # print(f'States are {self.GD.node_dict[i]} to {self.GD.node_dict[j]}')
-                    # print(f'other dir = {self.GD.node_dict[imap]} to {self.GD.node_dict[jmap]}')
-                    # print('---')
-                    # st()
-                    self.model.addConstr(d[i, j] == d[imap, jmap])
+        if self.GD.custom_map:
+            for count, (i,j) in enumerate(self.model_edges):
+                out_state = self.GD.custom_map[self.GD.node_dict[i][0]]
+                in_state = self.GD.custom_map[self.GD.node_dict[j][0]]
+                for (imap,jmap) in self.model_edges[count+1:]:
+                    if in_state == self.GD.custom_map[self.GD.node_dict[imap][0]] and out_state == self.GD.custom_map[self.GD.node_dict[jmap][0]]:
+                        self.model.addConstr(d[i, j] == d[imap, jmap])
+        else:
+            for count, (i,j) in enumerate(self.model_edges):
+                out_state = self.GD.node_dict[i][0]
+                in_state = self.GD.node_dict[j][0]
+                for (imap,jmap) in self.model_edges[count+1:]:
+                    if in_state == self.GD.node_dict[imap][0] and out_state == self.GD.node_dict[jmap][0]:
+                        self.model.addConstr(d[i, j] == d[imap, jmap])
+
 
     def setup_model(self):
         """
