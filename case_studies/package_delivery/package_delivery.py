@@ -2,6 +2,7 @@
 
 import sys
 sys.path.append('../../')
+import os
 from floras.components.automata import get_system_automaton, get_tester_automaton, get_product_automaton
 from floras.components.transition_system import TransitionSystemInput, TranSys
 from floras.components.plotting import Grid, plot_grid
@@ -225,6 +226,9 @@ def run_example():
     for goal in packagegoals.keys():
         labels_dict.update({goal : 'd_'+str(packagegoals[goal][1:])})
     grid = Grid('grid.txt', labels_dict)
+
+    if not os.path.exists('imgs'):
+        os.makedirs('imgs')
     plot_grid(grid, 'imgs/layout')
 
     transition_system_input = build_transition_system_automatic(grid, packagelocs, packagegoals, target, initpos)
@@ -256,7 +260,6 @@ def run_example():
 
     cuts = [(cut[0][0][0],cut[1][0][0]) for cut in d.keys()]
     plot_grid(grid, 'imgs/result', cuts)
-    # st()
 
 if __name__=='__main__':
     run_example()
