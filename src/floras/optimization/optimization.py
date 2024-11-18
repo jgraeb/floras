@@ -318,14 +318,44 @@ class MILP():
         Solve the model.
         """
         # --------- set parameters
+        # store model data for logging
+        self.model._data = dict()
+        self.model._data["term_condition"] = None
+
         # Last updated objective and time (for callback function)
         self.model._cur_obj = float('inf')
         self.model._time = time.time()
         self.model.Params.Seed = np.random.randint(0,100)
+        self.model._data["random_seed"] = self.model.Params.Seed
 
-        # store model data for logging
-        self.model._data = dict()
-        self.model._data["term_condition"] = None
+        # Set the MIPFocus parameter for ConcurrentMIP mode
+        self.model.setParam("Method", -1)  # -1 enables automatic algorithm selection
+        # self.model.setParam("ConcurrentMIP", 1)  # Enable concurrent MIP mode
+        # self.model.setParam("Threads", 4)
+        # Set parameters
+        # self.model.setParam("Threads", 4)          # Use 4 threads
+        # self.model.setParam("Presolve", 2)         # Aggressive presolve
+        # self.model.setParam("Cuts", 2)             # Aggressive cuts
+        # self.model.setParam("MIPGap", 0.01)        # Accept solutions within 1% of optimal
+        # self.model.setParam("TimeLimit", 1800)     # 30 minutes time limit
+        # self.model.setParam("Heuristics", 0.5)     # Increase heuristic effort
+        # self.model.setParam("ConcurrentMIP", 1)   # Enable concurrent MIP solving
+
+        # # Perform the tuning process
+        # self.model.tune()
+
+        # # Save tuned parameters to a file (optional, for later use)
+        # self.model.write("tuned_params.prm")
+
+        # Print tuned parameters
+        # print("Tuned Parameters:")
+        # for param in self.model.params:
+        #     default_value = self.model.getParamInfo(param)[1]  # Default value
+        #     current_value = self.model.getParam(param)        # Current (tuned) value
+        #     if default_value != current_value:           # Check if tuned
+        #         print(f"{param}: {current_value} (default: {default_value})")
+        
+        # st()
 
         # optimize
         if self.callback=="cb":
@@ -351,11 +381,11 @@ class MILP():
         self.model._data["runtime"] = self.model.Runtime
         self.model._data["flow"] = None
         self.model._data["ncuts"] = None
-
         # Storing problem variables:
         self.model._data["n_bin_vars"] = self.model.NumBinVars
         self.model._data["n_cont_vars"] = self.model.NumVars - self.model.NumBinVars
         self.model._data["n_constrs"] = self.model.NumConstrs
+        self.model._data["mip_gap"] = self.model.MIPGap
 
         f_vals = []
         d_vals = []
@@ -378,7 +408,7 @@ class MILP():
                 self.model._data["status"] = "optimal"
                 self.model._data["term_condition"] = "optimal found"
             else:
-                # feasible. maybe be optimal.
+                # feasible. may be optimal.
                 self.model._data["status"] = "feasible"
 
             # --------- parse output
@@ -428,6 +458,10 @@ class MILP():
         """
         self.setup_model()
         self.solve_problem()
+        print(f'model run time: {self.model.Runtime}')
+        print(f'model bin vars: {self.model.NumBinVars}')
+        print(f'model continuous vars: {self.model.NumVars - self.model.NumBinVars}')
+        print(f'model constraints: {self.model.NumConstrs}')
         d_vals, flow, exit_status = self.parse_solution()
         return d_vals, flow, exit_status
 
@@ -446,11 +480,11 @@ def cb(model, where):
             model._cur_obj = obj
 
         if sol_count >= 1:
-            if time.time() - model._time > 600:
+            if time.time() - model._time > 3600*12:
                 model._data["term_condition"] = "Obj not changing"
                 model.terminate()
         else:
             # Total termination time if the optimizer has not found anything in 5 min:
-            if time.time() - model._time > 3600*7:
+            if time.time() - model._time > 3600*12:
                 model._data["term_condition"] = "Timeout"
                 model.terminate()
