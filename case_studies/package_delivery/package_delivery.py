@@ -14,7 +14,6 @@ from floras.components.automata import get_system_automaton, get_tester_automato
 from floras.components.product import sync_prod
 from floras.optimization.optimize import solve
 
-
 def istarget(target, state):
     if state[0]==target and state[1]=='Idle':
         if all(item == 1 for item in state[2:]):
@@ -79,19 +78,14 @@ def build_transition_system_automatic(grid, packagelocs, packagegoals, target, i
                         newp = p
                         newdelivery = delivery_tracker
                         valid = True
-                        # if newr in packagelocs: # pick up package
-                        #     pos_p = packagelocs[newr]
-                        #     if p == 'Idle':
-                        #         newp = update_load(p, delivery_tracker, pos_p) # update loaded package status
-                        #     elif p == pos_p:
-                        #         newp = update_load(p, delivery_tracker, pos_p) # update loaded package status
-                        #     elif delivery_tracker[int(pos_p[1:])-1] == 0:
-                        #         valid = False
-                        if newr in packagelocs and newr != r: # pick up package
+                        if newr in packagelocs: # pick up package
+                            # st()
                             pos_p = packagelocs[newr]
-                            if p == 'Idle' or p == pos_p or delivery_tracker[int(pos_p[1:])-1] == 1: # current load or already delivered
+                            if p == 'Idle':
                                 newp = update_load(p, delivery_tracker, pos_p) # update loaded package status
-                            else:
+                            elif p == pos_p:
+                                newp = update_load(p, delivery_tracker, pos_p) # update loaded package status
+                            elif delivery_tracker[int(pos_p[1:])-1] == 0:
                                 valid = False
                         elif newr in packagegoals and p == packagegoals[newr]: # drop off package
                             # update loaded package and delivery tracker
@@ -107,27 +101,13 @@ def build_transition_system_automatic(grid, packagelocs, packagegoals, target, i
             transitions_dict.update({state: next_states})
         states_to_add = new_states
 
+    # setting the labels
     packagegoals_rev = {packagegoals[key]: key for key in packagegoals.keys()}
-
-    # automate this!!!
-    # p1droppedoff = [(packagegoals_rev['p1'], 'Idle', 1, 1)]
-    # p2droppedoff = [(packagegoals_rev['p2'], 'Idle', 0, 1)]
-    # p1droppedoff = [(packagegoals_rev['p1'], 'Idle', 1, 1, 1)]
-    # p2droppedoff = [(packagegoals_rev['p2'], 'Idle', 0, 1, 1)]
-    # p3droppedoff = [(packagegoals_rev['p3'], 'Idle', 0, 0, 1)]
-
-    p1droppedoff = [(packagegoals_rev['p1'], 'Idle', 1, 1, 1, 1, 1)]
-    p2droppedoff = [(packagegoals_rev['p2'], 'Idle', 0, 1, 1, 1, 1)]
-    p3droppedoff = [(packagegoals_rev['p3'], 'Idle', 0, 0, 1, 1, 1)]
-    p4droppedoff = [(packagegoals_rev['p4'], 'Idle', 0, 0, 0, 1, 1)]
-    p5droppedoff = [(packagegoals_rev['p5'], 'Idle', 0, 0, 0, 0, 1)]
-
     labels_dict = {p: ['goal'] for p in set(goals)}
-    labels_dict.update({p1d: ['p1d'] for p1d in p1droppedoff})
-    labels_dict.update({p2d: ['p2d'] for p2d in p2droppedoff})
-    labels_dict.update({p3d: ['p3d'] for p3d in p3droppedoff})
-    labels_dict.update({p4d: ['p4d'] for p4d in p4droppedoff})
-    labels_dict.update({p5d: ['p5d'] for p5d in p5droppedoff})
+    for key,val in packagegoals_rev.items():
+        i = int(key[1:])-1
+        states = [(val, 'Idle') + tuple([0 for k in range(0, i)])+  tuple([1 for k in range(i, num_packages)])]
+        labels_dict.update({s: [key+'d'] for s in states})
 
     init_list = [initstate]
     custom_map = {state: state[0] for state in states_list}
@@ -170,8 +150,8 @@ def run_example():
     sys_formula = 'F(goal)'
     # test_formula = 'F(p2d & F(p1d))' # small one to test
     # test_formula = 'F(p3d & F(p2d & F(p1d)))'
-    # test_formula = 'F(p5d & F(p4d & F(p3d & F(p2d & F(p1d)))))' # we want this one
-    test_formula = 'F(p4d & F(p3d & F(p2d & F(p1d))))'
+    # test_formula = 'F(p4d & F(p3d & F(p2d & F(p1d))))'
+    test_formula = 'F(p5d & F(p4d & F(p3d & F(p2d & F(p1d)))))' # we want this one
 
     # get automata
     sys_aut, spot_aut_sys = get_system_automaton(sys_formula)
@@ -191,6 +171,21 @@ def run_example():
     transys = TranSys(transition_system_input)
     print(f"T: ({len(transys.S), len(transys.E)})")
 
+    if save_sys:
+        # finding virtual sys (for system controller)
+        t0 = time.time()
+        virtual_sys = sync_prod(transys, sys_aut)
+        tf = time.time()
+        Gsys_runtime = tf-t0
+        print(f"Gsys: ({len(virtual_sys.S), len(virtual_sys.E)}) --- runtime {Gsys_runtime} s")
+        # Pickle the graph to a file
+        virtual_sys_dict = {'nodes': virtual_sys.S, 'edges': virtual_sys.E, 'goals': virtual_sys.sink, 'init': virtual_sys.src}
+        with open("virtual_sys.p", "wb") as f:
+            pickle.dump(virtual_sys_dict, f)
+    else:
+        virtual_sys = None
+        print("G_sys: skipped")
+
     # get virtual graphs
     t0 = time.time()
     virtual = sync_prod(transys, prod_aut)
@@ -199,23 +194,8 @@ def run_example():
     print(f"G: ({len(virtual.S), len(virtual.E)}) --- runtime {G_runtime} s")
     
     if virtual.int == []:
-        print('Unrealizable - no intermediate nodes on the graph!')
-        # st()
+        print('Unrealizable - No intermediate nodes on the graph!')
 
-    if save_sys:
-        # finding virtual sys (for system controller)
-        t0 = time.time()
-        virtual_sys = sync_prod(transys, sys_aut)
-        tf = time.time()
-        Gsys_runtime = tf-t0
-        print(f"G: ({len(virtual_sys.S), len(virtual_sys.E)}) --- runtime {Gsys_runtime} s")
-        # Pickle the graph to a file
-        virtual_sys_dict = {'nodes': virtual_sys.S, 'edges': virtual_sys.E, 'goals': virtual_sys.sink, 'init': virtual_sys.src}
-        with open("virtual_sys.p", "wb") as f:
-            pickle.dump(virtual_sys_dict, f)
-    else:
-        virtual_sys = None
-        print("G_sys: skipped")
     print("==========================")
 
     if plot_graphs:
@@ -235,7 +215,7 @@ def run_example():
     print(f"Number of cuts on T: {len(list(set(cuts)))}")
     print("==========================")
     cut_dict = {'cuts': cuts, 'd': d, 'flow': flow}
-    with open('stored_optimization_result_x.p', 'wb') as pkl_file:
+    with open('stored_optimization_result.p', 'wb') as pkl_file:
         pickle.dump(cut_dict, pkl_file)
 
     plot_grid(grid, 'imgs/result', list(set(cuts)))

@@ -1,25 +1,41 @@
 '''
-Animate the simulation trace from the saved pkl file.
+Animate.
 '''
-import copy as cp
-import sys
+import os
 import numpy as np
+import _pickle as pickle
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.collections import PatchCollection
-import os
-import glob
 from PIL import Image, ImageOps
-import _pickle as pickle
-import imageio
-from ipdb import set_trace as st
+from floras.simulation.animation import animate_images
 
 TILESIZE = 50
 
 main_dir = os.path.dirname(os.path.dirname(os.path.realpath("__file__")))
 robo_figure = main_dir + '/imglib/robot.png'
 
-def draw_grid(grid, merge = False):
+def draw_packages(grid, packagelocs):
+    packages = []
+    for p in packagelocs:
+        ((y,x),color) = packagelocs[p]
+        tile = patches.Rectangle((x*TILESIZE+TILESIZE/4, y*TILESIZE+TILESIZE/4), TILESIZE/2, TILESIZE/2, fill=True, facecolor=color, edgecolor='black', alpha=1.0)
+        ax.text(x*TILESIZE+TILESIZE/2, y*TILESIZE+TILESIZE/2, r'$p_'+p[1:]+'$', fontsize = 10, rotation=0, horizontalalignment='center', verticalalignment='center', rotation_mode='anchor')
+        packages.append(tile)
+    ax.add_collection(PatchCollection(packages, match_original=True)) 
+
+def draw_sys(sys_data, theta_d, merge = False):
+    y_tile = sys_data[1]
+    x_tile = sys_data[0]
+    x = (x_tile) * TILESIZE
+    z = (y_tile) * TILESIZE
+    robo_fig = Image.open(robo_figure)
+    robo_fig = ImageOps.flip(robo_fig)
+    robo_fig = robo_fig.rotate(theta_d, expand=False)
+    offset = 0.1
+    ax.imshow(robo_fig, zorder=1, interpolation='bilinear', extent=[z+5, z+TILESIZE-5, x, x+TILESIZE])
+
+def draw_grid(grid):
     map = grid.map
     size = max(map.keys())
     z_min = 0
@@ -40,11 +56,13 @@ def draw_grid(grid, merge = False):
             if map[(y,x)]=='*':
                 tile = patches.Rectangle((x_tiles[x], y_tiles[y]), TILESIZE, TILESIZE, fill=True, color='black', alpha=.5)
             elif (y,x) in grid.colors:
-                tile = patches.Rectangle((x_tiles[x], y_tiles[y]), TILESIZE, TILESIZE, fill=True, color=grid.colors[(y,x)], alpha=.3)
+                if grid.labels[(y,x)][0] == 'p':
+                    shade = 0.0
+                else:
+                    shade = 0.2
+                tile = patches.Rectangle((x_tiles[x], y_tiles[y]), TILESIZE, TILESIZE, fill=True, color=grid.colors[(y,x)], alpha=shade)
             else:
                 tile = patches.Rectangle((x_tiles[x], y_tiles[y]), TILESIZE, TILESIZE, fill=True, color='#ffffff')
-            if (y,x) in grid.labels:
-                ax.text(x_tiles[x]+TILESIZE*0.5, y_tiles[y]+TILESIZE*0.5, r'$'+grid.labels[(y,x)]+'$', fontsize = 25, rotation=0, horizontalalignment='center', verticalalignment='center', rotation_mode='anchor')
             road_tiles.append(tile)
 
     ax.add_collection(PatchCollection(road_tiles, match_original=True))
@@ -77,52 +95,12 @@ def draw_grid(grid, merge = False):
     ax.add_collection(PatchCollection(cut_tiles, match_original=True))    
     plt.gca().invert_yaxis()
 
-def draw_timestamp(t, merge = False):
-    if merge:
-        ax.text(0.5,0.7,t, transform=plt.gcf().transFigure,fontsize='large',
-             bbox={"boxstyle" : "circle", "color":"white", "ec":"black"})
-    else:
-        ax.text(0.3,0.7,t, transform=plt.gcf().transFigure,fontsize='large',
-             bbox={"boxstyle" : "circle", "color":"white", "ec":"black"})
-
-def draw_sys(sys_data, theta_d, merge = False):
-    y_tile = sys_data[1]
-    x_tile = sys_data[0]
-    x = (x_tile) * TILESIZE
-    z = (y_tile) * TILESIZE
-    robo_fig = Image.open(robo_figure)
-    robo_fig = ImageOps.flip(robo_fig)
-    robo_fig = robo_fig.rotate(theta_d, expand=False)
-    offset = 0.1
-    ax.imshow(robo_fig, zorder=1, interpolation='bilinear', extent=[z+5, z+TILESIZE-5, x, x+TILESIZE])
-
-def draw_test(test_data, theta_d, merge = False):
-    y_tile = test_data[1]
-    x_tile = test_data[0]
-    x = (x_tile) * TILESIZE
-    z = (y_tile) * TILESIZE
-    robo_fig = Image.open(robo_figure)
-    robo_fig = ImageOps.flip(robo_fig)
-    robo_fig = robo_fig.rotate(theta_d, expand=False)
-    offset = 0.1
-    background = patches.Circle((z+TILESIZE/2,x+TILESIZE/2), (TILESIZE-10)/2, linewidth=1,facecolor='blue')
-    ax.add_artist(background)
-    ax.imshow(robo_fig, zorder=1, interpolation='bilinear', extent=[z+10, z+TILESIZE-10, x+5, x+TILESIZE-5]) 
-
-def animate_images(output_dir):
-    # Create the frames
-    frames = []
-    imgs = glob.glob(output_dir+'plot_'"*.png")
-    imgs.sort()
-    for i in imgs:
-        new_frame = Image.open(i)
-        frames.append(new_frame)
-
-    # Save into a GIF file that loops forever
-    frames[0].save(output_dir + 'png_to_gif.gif', format='GIF',
-            append_images=frames[1:],
-            save_all=True,
-            duration=200, loop=3)
+def make_animation():
+    output_dir = os.getcwd()+'/animations/gifs/'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    traces_file = os.getcwd()+'/saved_traces/sim_trace.p'
+    traces_to_animation(traces_file, output_dir)
 
 def traces_to_animation(filename, output_dir):
     # extract out traces from pickle file
@@ -143,20 +121,11 @@ def traces_to_animation(filename, output_dir):
         draw_grid(traces[t].grid)
         theta_d = 0
         draw_sys(sys_data, theta_d)
-        # if traces[t].snapshot['test']:
-        #     test_data = traces[t].snapshot['test']
-        #     draw_test(test_data, theta_d)
+        draw_packages(grid, packagelocs)
         plot_name = str(t).zfill(5)
         img_name = output_dir+'/plot_'+plot_name+'.png'
         fig.savefig(img_name, dpi=1200)
     animate_images(output_dir)
-
-def make_animation():
-    output_dir = os.getcwd()+'/animations/gifs/'
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    traces_file = os.getcwd()+'/saved_traces/sim_trace.p'
-    traces_to_animation(traces_file, output_dir)
 
 if __name__ == '__main__':
     make_animation()

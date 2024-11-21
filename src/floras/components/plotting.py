@@ -53,5 +53,5 @@ def plot_grid(grid, filename, cuts = []):
 
     ax.invert_yaxis()
     ax.axis('equal')
-    plt.show()
+    # plt.show()
     fig.savefig(filename + '.pdf')

@@ -29,8 +29,8 @@ class Game:
         return cuts
 
     def setup(self):
-        cuts = self.get_optimization_results()
-        self.grid.add_cuts(cuts)
+        opt_res = self.get_optimization_results()
+        self.grid.add_cuts(opt_res['cuts'])
         if not self.agent.controller: # check if agent controller already exists
             self.agent.find_controller(self.grid)
 

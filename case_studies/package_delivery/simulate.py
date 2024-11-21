@@ -6,11 +6,12 @@ import _pickle as pickle
 import logging
 import networkx as nx
 from ipdb import set_trace as st
+from copy import deepcopy
 
-from floras.components.plotting import Grid
+from floras.components.grid import Grid
 from floras.simulation.agents import Agent
 from floras.simulation.game import Game
-from floras.simulation.utils import load_opt_from_pkl_file, save_scene, save_trace
+from floras.simulation.utils import load_opt_from_pkl_file, save_trace, Scene
 
 class ShortestPathController():
     def __init__(self, virtual_sys_dict, cuts):
@@ -31,9 +32,9 @@ class ShortestPathController():
         for transition in self.edges:
             out_pos = transition[0][0][0]
             in_pos = self.edges[transition][0][0]
-            if out_pos != in_pos:
-                if (out_pos, in_pos) not in self.cuts:
-                    G.add_edge(transition[0], self.edges[transition])
+            # if out_pos != in_pos:
+            if (out_pos, in_pos) not in self.cuts:
+                G.add_edge(transition[0], self.edges[transition])
         return G
     
     def _find_path_to_nearest_goal(self):
@@ -69,12 +70,47 @@ class ShortestPathController():
             self.isterminal = True
 
         output = {'y': self.current_node[0][0][0], 'x': self.current_node[0][0][1]}
+        # print(f'sys moving to {self.current_node}')
         return output
+    
+def update_package_locs(current_node, packageloc_dict, packagegoals):
+    '''
+    Update package location on the grid depending on delivery status and loading status.
+    '''
+    cur_pos = current_node[0][0]
+    loading_status = current_node[0][1]
+    delivery_status = current_node[0][2:]
+    for key,val in packageloc_dict.items():
+        idx = int(key[1:])
+        if delivery_status[idx-1] == 1: 
+            packageloc_dict.update({key: ((packagegoals[key]), val[-1])}) # keep the color
+        elif loading_status == key:
+            packageloc_dict.update({key: ((cur_pos), val[-1])}) # keep the color
+    return packageloc_dict
 
 def run_sim(gridfile, max_timestep, filepath):
     '''
     Run the simulation.
     '''
+    # define locations of interest
+    packagelocs = {(2,2): 'p1', (2,4): 'p2', (2,6): 'p3', (2,8): 'p4', (2,10): 'p5'}
+    packagegoals = {(0,5): 'p1', (0,7): 'p2', (4,9): 'p3', (0,12): 'p4', (3,12): 'p5'}
+    target = (3,0)
+    initpos = (0,0)
+
+    # set the labels
+    labels_dict = {initpos: 'S', target: 'T'}
+    for loc in packagelocs.keys():
+        labels_dict.update({loc : 'p_'+str(packagelocs[loc][1:])})
+    for goal in packagegoals.keys():
+        labels_dict.update({goal : 'd_'+str(packagegoals[goal][1:])})
+
+    package_colors = ['cornflowerblue', 'green', 'yellow', 'red', 'cyan']
+    color_dict = {key: package_colors[int(packagelocs[key][1:])-1] for key in packagelocs.keys()}
+    color_dict |= {key: package_colors[int(packagegoals[key][1:])-1] for key in packagegoals.keys()}
+    color_dict |= {target: '#ffb000'}
+    color_dict |= {initpos: '#d02670'}
+
     trace=[]
 
     # load the opt results from pkl file
@@ -82,7 +118,7 @@ def run_sim(gridfile, max_timestep, filepath):
     cuts = opt['cuts']
 
     # set up the simulation
-    grid = Grid(gridfile)
+    grid = Grid(gridfile, labels_dict, color_dict)
     sys = Agent('sys', (0,0), [], grid)
     # get the controller and save it to the system
     # get virtual sys from pickle file
@@ -94,18 +130,30 @@ def run_sim(gridfile, max_timestep, filepath):
     sys.save_controller(controller)
 
     game = Game(grid, sys)
-    trace = save_scene(game,trace)
+    packageloc_dict = {packagelocs[key]: (key, package_colors[int(packagelocs[key][1:])-1]) for key in packagelocs.keys()}
+    packagegoals_dict = {packagegoals[key]: (key) for key in packagegoals.keys()}
+    
+    trace = save_scene(game,trace, packageloc_dict)
     game.print_game_state()
     for t in range(1,max_timestep):
         print('Timestep {}'.format(t))
         game.agent_take_step()
+        packageloc_dict = update_package_locs(game.agent.controller.current_node, packageloc_dict, packagegoals_dict)
         game.print_game_state()
         # save the trace
-        trace = save_scene(game,trace)
+        trace = save_scene(game,trace, packageloc_dict)
         if game.is_terminal():
             break
     save_trace(filepath, game.trace)
 
+def save_scene(game, trace, packageloc_dict): # save each scene in trace
+    print('Saving scene {}'.format(game.timestep))
+    snapshot = {'sys': game.agent.s, 'packagelocs': deepcopy(packageloc_dict)}
+    current_scene = Scene(game.timestep, game.grid, snapshot)
+    trace.append(current_scene)
+    game.timestep += 1
+    game.trace = trace
+    return trace
 
 if __name__ == '__main__':
     max_timestep = 100
