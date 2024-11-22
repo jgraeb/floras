@@ -62,13 +62,6 @@ class MILP():
         G_minus_I = deepcopy(G)
         G_minus_I.remove_nodes_from(self.cleaned_intermed)
 
-        # create S and remove self-loops
-        S = self.SD.graph
-        to_remove = []
-        for i, j in S.edges:
-            if i == j:
-                to_remove.append((i,j))
-        S.remove_edges_from(to_remove)
         self.model_edges = list(G.edges)
         self.model_nodes = list(G.nodes)
 
@@ -79,9 +72,19 @@ class MILP():
         self.sink = self.GD.sink
         self.inter = self.cleaned_intermed
 
-        self.model_s_edges = list(S.edges)
-        self.model_s_nodes = list(S.nodes)
-        self.s_sink = self.SD.acc_sys
+        # create S and remove self-loops
+        if self.type != 'static':
+            S = self.SD.graph
+            to_remove = []
+            for i, j in S.edges:
+                if i == j:
+                    to_remove.append((i,j))
+            S.remove_edges_from(to_remove)
+            self.model_s_edges = list(S.edges)
+            self.model_s_nodes = list(S.nodes)
+            self.s_sink = self.SD.acc_sys
+        else:
+            S = None
 
         return G, S, G_minus_I
 
@@ -108,8 +111,12 @@ class MILP():
         self.no_flow_in_source_out_sink_constraints(f)
         self.cut_constraints(f,d)
         self.partition_constraints(d,m)
-        self.static_constraints(d)
         self.bidirectional_constraints(d)
+
+        if self.GD.custom_map:
+            self.custom_static_constraints(d)
+        else:
+            self.static_constraints(d)
 
     def reactive_model(self):
         # for the flow on S
@@ -134,6 +141,7 @@ class MILP():
         self.no_flow_in_source_out_sink_constraints(f)
         self.cut_constraints(f,d)
         self.partition_constraints(d,m)
+        self.do_not_cut_edges(d)
 
         # --------- add feasibility constraints to preserve flow F_s >=1 on S for every q
         node_list = []
@@ -259,14 +267,39 @@ class MILP():
                 if out_state == self.GD.node_dict[imap][0] and in_state == self.GD.node_dict[jmap][0]:
                     self.model.addConstr(d[i, j] == d[imap, jmap])
 
+    def do_not_cut_edges(self,d):
+        # ---------- do not cut edges that would introduce dead ends
+        do_not_cut = [edge for edge in self.GD.do_not_cut if edge in self.model_edges]
+        self.model.addConstrs((d[i, j] == 0 for (i,j) in do_not_cut), name='d_do_not_cut')
+
+
+    def custom_static_constraints(self,d):
+        # st()
+        for count, (i,j) in enumerate(self.model_edges):
+            out_state = self.GD.custom_map[self.GD.node_dict[i][0]]
+            in_state = self.GD.custom_map[self.GD.node_dict[j][0]]
+            for (imap,jmap) in self.model_edges[count+1:]:
+                if out_state == self.GD.custom_map[self.GD.node_dict[imap][0]] and in_state == self.GD.custom_map[self.GD.node_dict[jmap][0]]:
+                    self.model.addConstr(d[i, j] == d[imap, jmap])
+
+
     def bidirectional_constraints(self,d):
         # ---------  add bidirectional cuts on G (for static examples)
-        for count, (i,j) in enumerate(self.model_edges):
-            out_state = self.GD.node_dict[i][0]
-            in_state = self.GD.node_dict[j][0]
-            for (imap,jmap) in self.model_edges[count+1:]:
-                if in_state == self.GD.node_dict[imap][0] and out_state == self.GD.node_dict[jmap][0]:
-                    self.model.addConstr(d[i, j] == d[imap, jmap])
+        if self.GD.custom_map:
+            for count, (i,j) in enumerate(self.model_edges):
+                out_state = self.GD.custom_map[self.GD.node_dict[i][0]]
+                in_state = self.GD.custom_map[self.GD.node_dict[j][0]]
+                for (imap,jmap) in self.model_edges[count+1:]:
+                    if in_state == self.GD.custom_map[self.GD.node_dict[imap][0]] and out_state == self.GD.custom_map[self.GD.node_dict[jmap][0]]:
+                        self.model.addConstr(d[i, j] == d[imap, jmap])
+        else:
+            for count, (i,j) in enumerate(self.model_edges):
+                out_state = self.GD.node_dict[i][0]
+                in_state = self.GD.node_dict[j][0]
+                for (imap,jmap) in self.model_edges[count+1:]:
+                    if in_state == self.GD.node_dict[imap][0] and out_state == self.GD.node_dict[jmap][0]:
+                        self.model.addConstr(d[i, j] == d[imap, jmap])
+
 
     def setup_model(self):
         """
@@ -285,14 +318,44 @@ class MILP():
         Solve the model.
         """
         # --------- set parameters
+        # store model data for logging
+        self.model._data = dict()
+        self.model._data["term_condition"] = None
+
         # Last updated objective and time (for callback function)
         self.model._cur_obj = float('inf')
         self.model._time = time.time()
         self.model.Params.Seed = np.random.randint(0,100)
+        self.model._data["random_seed"] = self.model.Params.Seed
 
-        # store model data for logging
-        self.model._data = dict()
-        self.model._data["term_condition"] = None
+        # Set the MIPFocus parameter for ConcurrentMIP mode
+        self.model.setParam("Method", -1)  # -1 enables automatic algorithm selection
+        # self.model.setParam("ConcurrentMIP", 1)  # Enable concurrent MIP mode
+        # self.model.setParam("Threads", 4)
+        # Set parameters
+        # self.model.setParam("Threads", 4)          # Use 4 threads
+        # self.model.setParam("Presolve", 2)         # Aggressive presolve
+        # self.model.setParam("Cuts", 2)             # Aggressive cuts
+        # self.model.setParam("MIPGap", 0.01)        # Accept solutions within 1% of optimal
+        # self.model.setParam("TimeLimit", 1800)     # 30 minutes time limit
+        # self.model.setParam("Heuristics", 0.5)     # Increase heuristic effort
+        # self.model.setParam("ConcurrentMIP", 1)   # Enable concurrent MIP solving
+
+        # # Perform the tuning process
+        # self.model.tune()
+
+        # # Save tuned parameters to a file (optional, for later use)
+        # self.model.write("tuned_params.prm")
+
+        # Print tuned parameters
+        # print("Tuned Parameters:")
+        # for param in self.model.params:
+        #     default_value = self.model.getParamInfo(param)[1]  # Default value
+        #     current_value = self.model.getParam(param)        # Current (tuned) value
+        #     if default_value != current_value:           # Check if tuned
+        #         print(f"{param}: {current_value} (default: {default_value})")
+        
+        # st()
 
         # optimize
         if self.callback=="cb":
@@ -318,11 +381,11 @@ class MILP():
         self.model._data["runtime"] = self.model.Runtime
         self.model._data["flow"] = None
         self.model._data["ncuts"] = None
-
         # Storing problem variables:
         self.model._data["n_bin_vars"] = self.model.NumBinVars
         self.model._data["n_cont_vars"] = self.model.NumVars - self.model.NumBinVars
         self.model._data["n_constrs"] = self.model.NumConstrs
+        self.model._data["mip_gap"] = self.model.MIPGap
 
         f_vals = []
         d_vals = []
@@ -336,7 +399,7 @@ class MILP():
             exit_status = 'inf'
             self.model._data["status"] = "inf/unbounded"
             return 0,0,exit_status
-        elif self.model.status == 11 and model.SolCount < 1:
+        elif self.model.status == 11 and self.model.SolCount < 1:
             exit_status = 'not solved'
             self.model._data["status"] = "not_solved"
             self.model._data["exit_status"] = exit_status
@@ -345,7 +408,7 @@ class MILP():
                 self.model._data["status"] = "optimal"
                 self.model._data["term_condition"] = "optimal found"
             else:
-                # feasible. maybe be optimal.
+                # feasible. may be optimal.
                 self.model._data["status"] = "feasible"
 
             # --------- parse output
@@ -395,6 +458,10 @@ class MILP():
         """
         self.setup_model()
         self.solve_problem()
+        print(f'model run time: {self.model.Runtime}')
+        print(f'model bin vars: {self.model.NumBinVars}')
+        print(f'model continuous vars: {self.model.NumVars - self.model.NumBinVars}')
+        print(f'model constraints: {self.model.NumConstrs}')
         d_vals, flow, exit_status = self.parse_solution()
         return d_vals, flow, exit_status
 
@@ -413,11 +480,11 @@ def cb(model, where):
             model._cur_obj = obj
 
         if sol_count >= 1:
-            if time.time() - model._time > 60:
+            if time.time() - model._time > 3600*12:
                 model._data["term_condition"] = "Obj not changing"
                 model.terminate()
         else:
             # Total termination time if the optimizer has not found anything in 5 min:
-            if time.time() - model._time > 600:
+            if time.time() - model._time > 3600*12:
                 model._data["term_condition"] = "Timeout"
                 model.terminate()

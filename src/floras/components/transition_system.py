@@ -16,12 +16,13 @@ class TransitionSystemInput():
         labels: Labels of each system state.
         init: Initial state of the system.
     """
-    def __init__(self,states,transitions,labels, init):
+    def __init__(self,states,transitions,labels, init, custom_map = None):
         self.states = states
         self.transitions = transitions
         self.labels = labels
         self.init = init
         self.next_state_dict = None
+        self.custom_map = custom_map
         self.setup()
 
     def setup(self):
@@ -50,16 +51,18 @@ class TranSys():
         self.AP = None
         self.L = None
         self.G = None
+        self.custom_map = None
         self.input = transition_system_input
         if self.input:
             self.setup()
+            self.custom_map = transition_system_input.custom_map
 
     def setup(self):
         """
         Set up the transition system from the input data.
         """
         self.S = list(self.input.states)
-        self.A = ['act'+str(k) for k in range(0,5)] # update for different actions later
+        self.A = ['act'+str(k) for k in range(0,8)] # update for different actions later
         self.construct_transition_function()
         self.get_APs()
         self.construct_initial_conditions()

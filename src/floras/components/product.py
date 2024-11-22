@@ -25,20 +25,20 @@ class Product(TranSys):
     AP: the set of atomic propositions,
     L: labels.
     """
-    def __init__(self, product_transys, spec_prod_automaton):
+    def __init__(self, transys, spec_prod_automaton):
         super().__init__()
-        self.transys=product_transys
+        self.transys=transys
         self.automaton=spec_prod_automaton
         self.G_initial = None
         self.G = None
-        self.S = list(product(product_transys.S, spec_prod_automaton.Q))
+        self.S = list(product(transys.S, spec_prod_automaton.Q))
         self.Sdict = od()
         self.reverse_Sdict = od()
         for k in range(len(self.S)):
             self.Sdict[self.S[k]] = "s"+str(k)
             self.reverse_Sdict["s"+str(k)] = self.S[k]
-        self.A = product_transys.A
-        self.I = [(init, spec_prod_automaton.qinit) for init in product_transys.I]
+        self.A = transys.A
+        self.I = [(init, spec_prod_automaton.qinit) for init in transys.I]
         self.AP = spec_prod_automaton.Q
 
     def print_transitions(self):
@@ -173,6 +173,27 @@ class Product(TranSys):
         if not os.path.exists("imgs"):
             os.makedirs("imgs")
         G_agr.draw("imgs/"+fn+".pdf",prog='dot')
+
+    def save_result_plot(self,cuts,fn):
+        G_agr = self.base_dot_graph(graph=self.G_initial)
+        # highlight cut edges
+        graph_cut_edges = []
+        for cut_edge in cuts:
+            for state_act, in_node in self.E.items():
+                out_node = state_act[0]
+                if out_node == cut_edge[0] and in_node == cut_edge[1]:
+                    graph_cut_edges.append((self.Sdict[out_node], self.Sdict[in_node]))
+        for e in G_agr.edges():
+            edge = G_agr.get_edge(*e)
+            if e in graph_cut_edges:
+                e.attr['color'] = 'red'
+                e.attr['style'] = 'dashed'
+                e.attr['penwidth'] = 2.0
+
+        if not os.path.exists("imgs"):
+            os.makedirs("imgs")
+        G_agr.draw("imgs/"+fn+".pdf",prog='dot')
+
 
 def sync_prod(system, aut):
     prod = Product(system, aut)
