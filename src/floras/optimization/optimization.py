@@ -319,19 +319,18 @@ class MILP():
         """
         # --------- set parameters
         # store model data for logging
-        self.model._data = dict()
+        self.model._data = dict() # Store termination conditions
         self.model._data["term_condition"] = None
 
         # Last updated objective and time (for callback function)
-        self.model._cur_obj = float('inf')
-        self.model._time = time.time()
+        self.model._obj_time = time.time()  # Track the last improvement time
+        self.model._cur_obj = GRB.INFINITY # Start with an infinite objective
+        self.model._time = time.time() # Track when optimization starts
         self.model.Params.Seed = np.random.randint(0,100)
         self.model._data["random_seed"] = self.model.Params.Seed
 
-        # Set the MIPFocus parameter for ConcurrentMIP mode
         self.model.setParam("Method", -1)  # -1 enables automatic algorithm selection
         # self.model.setParam("ConcurrentMIP", 1)  # Enable concurrent MIP mode
-        # self.model.setParam("Threads", 4)
         # Set parameters
         # self.model.setParam("Threads", 4)          # Use 4 threads
         # self.model.setParam("Presolve", 2)         # Aggressive presolve
@@ -339,23 +338,6 @@ class MILP():
         # self.model.setParam("MIPGap", 0.01)        # Accept solutions within 1% of optimal
         # self.model.setParam("TimeLimit", 1800)     # 30 minutes time limit
         # self.model.setParam("Heuristics", 0.5)     # Increase heuristic effort
-        # self.model.setParam("ConcurrentMIP", 1)   # Enable concurrent MIP solving
-
-        # # Perform the tuning process
-        # self.model.tune()
-
-        # # Save tuned parameters to a file (optional, for later use)
-        # self.model.write("tuned_params.prm")
-
-        # Print tuned parameters
-        # print("Tuned Parameters:")
-        # for param in self.model.params:
-        #     default_value = self.model.getParamInfo(param)[1]  # Default value
-        #     current_value = self.model.getParam(param)        # Current (tuned) value
-        #     if default_value != current_value:           # Check if tuned
-        #         print(f"{param}: {current_value} (default: {default_value})")
-        
-        # st()
 
         # optimize
         if self.callback=="cb":
@@ -465,11 +447,48 @@ class MILP():
         d_vals, flow, exit_status = self.parse_solution()
         return d_vals, flow, exit_status
 
+def cb_mip(model, where):
+    """
+    Callback function to terminate the program if:
+    1. The objective has not improved significantly.
+    2. The MIP gap is below a threshold.
+    3. A timeout is reached (default: 12 hours).
+    """
+    if where == GRB.Callback.MIPNODE:
+        # Best known solution at the current node
+        obj = model.cbGet(GRB.Callback.MIPNODE_OBJBST)
+        sol_count = model.cbGet(GRB.Callback.MIPNODE_SOLCNT)
+
+        # Update incumbent objective and time if improvement occurs
+        if sol_count > 0 and abs(obj - model._cur_obj) > 1e-8:
+            model._cur_obj = obj
+            model._obj_time = time.time()
+
+    elif where == GRB.Callback.MIP:
+        # Retrieve best bound and objective
+        best_bound = model.cbGet(GRB.Callback.MIP_OBJBND)
+        best_obj = model.cbGet(GRB.Callback.MIP_OBJBST)
+
+        # Calculate the MIP gap if feasible
+        if best_obj < GRB.INFINITY and best_bound > -GRB.INFINITY:
+            mip_gap = abs(best_bound - best_obj) / max(abs(best_obj), 1)
+            model._mipgap = mip_gap
+
+            # Terminate if MIP gap is below the threshold (e.g., 5%)
+            if mip_gap < 0.05:
+                model._data["term_condition"] = "Mipgap low"
+                model.terminate()
+
+        # Terminate if total runtime exceeds 12 hours
+        elapsed_time = time.time() - model._time
+        if elapsed_time > 3600 * 12:
+            model._data["term_condition"] = "Timeout"
+            model.terminate()
 
 def cb(model, where):
     """
     Callback function to terminate the program if the objective has not
-    improved in 60 seconds or no soution was found in 5 minutes.
+    improved in 1 hour or no solution was found in 12 hours.
     """
     if where == GRB.Callback.MIPNODE:
         obj = model.cbGet(GRB.Callback.MIPNODE_OBJBST) # Current best objective
@@ -478,13 +497,14 @@ def cb(model, where):
         if abs(obj - model._cur_obj) > 1e-8:
             # If so, update incumbent
             model._cur_obj = obj
+            model._obj_time = time.time()
 
-        if sol_count >= 1:
-            if time.time() - model._time > 3600*12:
+        if sol_count >= 1: # if objective didnt change in 1 hr
+            if time.time() - model._obj_time > 3600:
                 model._data["term_condition"] = "Obj not changing"
                 model.terminate()
-        else:
-            # Total termination time if the optimizer has not found anything in 5 min:
-            if time.time() - model._time > 3600*12:
-                model._data["term_condition"] = "Timeout"
-                model.terminate()
+
+        # Total termination time if the optimizer has not found anything in 5 min:
+        if time.time() - model._time > 3600*12:
+            model._data["term_condition"] = "Timeout"
+            model.terminate()

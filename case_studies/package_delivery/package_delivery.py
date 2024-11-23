@@ -148,7 +148,7 @@ def run_example():
     transition_system_input = build_transition_system_automatic(grid, packagelocs, packagegoals, target, initpos)
 
     sys_formula = 'F(goal)'
-    # test_formula = 'F(p2d & F(p1d))' # small one to test
+    # test_formula = 'F(p1d)'# & F(p1d))' # small one to test
     # test_formula = 'F(p3d & F(p2d & F(p1d)))'
     # test_formula = 'F(p4d & F(p3d & F(p2d & F(p1d))))'
     test_formula = 'F(p5d & F(p4d & F(p3d & F(p2d & F(p1d)))))' # we want this one
@@ -207,7 +207,9 @@ def run_example():
         if virtual_sys:
             virtual_sys.save_plot('virtual_sys')
 
-    d, flow = solve(virtual, transys, prod_aut, virtual_sys, case = 'static', plot_results = False)
+    d, flow = solve(virtual, transys, prod_aut, virtual_sys, case = 'static', plot_results = False, callback = None)
+    # d, flow = solve(virtual, transys, prod_aut, virtual_sys, case = 'static', plot_results = False)
+
 
     cuts = [(cut[0][0][0],cut[1][0][0]) for cut in d.keys()]
     print("==========================")
