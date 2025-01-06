@@ -48,11 +48,8 @@ class Automaton:
         and_prop = spot.formula.And(list(propositions))
         comp_prop = [] # Complementary propositions
         for k in range(len(self.ap)):
-            try:
-                if not spot.contains(self.ap[k], and_prop):
-                    comp_prop.append(spot.formula.Not(self.ap[k]))
-            except:
-                pdb.set_trace()
+            if not spot.contains(self.ap[k], and_prop):
+                comp_prop.append(spot.formula.Not(self.ap[k]))
         and_comp_prop = spot.formula.And(comp_prop)
         complete_formula = spot.formula.And([and_prop, and_comp_prop]) # Taking complement of complete formula
         return complete_formula
@@ -70,15 +67,12 @@ class Automaton:
         for k,v in self.delta.items():
             if k[0] == q0:
                 complete_formula = self.complement_negation(propositions)
-                try:
-                    if k[1] == True:
-                        transition = v
-                        return transition
-                    if spot.contains(k[1], complete_formula):
-                        transition = v
-                        return transition
-                except:
-                    pdb.set_trace()
+                if k[1] == True:
+                    transition = v
+                    return transition
+                if spot.contains(k[1], complete_formula):
+                    transition = v
+                    return transition
         return None
 
     def save_plot(self, fn):
@@ -106,7 +100,7 @@ class Automaton:
             n = G_agr.get_node(i)
             n.attr['shape'] = 'circle'
             n.attr['fillcolor'] = '#ffffff' # default color white
-            # n.attr['label'] = ''
+            n.attr['label'] = ''
             try:
                 if n in list(self.Acc["sys"]) and n not in list(self.Acc["test"]):
                     n.attr['fillcolor'] = '#ffb000' #yellow
