@@ -36,7 +36,7 @@ jobs:
         run: conda install -c conda-forge spot
 
       - name: Install pygraphviz via conda
-        run: conda install --channel conda-forge pygraphviz
+        run: conda install --channel conda-forge pygraphviz=1.14
 
       - name: Add pdm
         run: pip install pdm
