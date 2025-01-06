@@ -37,8 +37,8 @@ jobs:
 
       - name: Install pygraphviz
         run: |
-        sudo apt-get install graphviz graphviz-dev
-        pip install pygraphviz
+          sudo apt-get install graphviz graphviz-dev
+          pip install pygraphviz
 
       - name: Add pdm
         run: pip install pdm
