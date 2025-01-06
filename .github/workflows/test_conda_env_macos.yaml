@@ -27,8 +27,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
 
-      - name: Install pygraphviz conda
-        run: conda install --channel conda-forge pygraphviz
+      - name: Install graphviz
+        run: |
+          brew install graphviz
+          pip install pygraphviz
 
       - name: Check conda
         run: |
