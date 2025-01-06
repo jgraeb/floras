@@ -35,8 +35,10 @@ jobs:
       - name: Install spot
         run: conda install -c conda-forge spot
 
-      - name: Install pygraphviz via conda
-        run: conda install --channel conda-forge pygraphviz=1.14
+      - name: Install pygraphviz
+        run: |
+        sudo apt-get install graphviz graphviz-dev
+        pip install pygraphviz
 
       - name: Add pdm
         run: pip install pdm
