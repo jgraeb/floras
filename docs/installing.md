@@ -1,16 +1,18 @@
 # Installing Floras
 ### Requirements
-Floras requires `Python>=3.10` and a C++17-compliant compiler (for example `g++>=7.0` or `clang++>=5.0`).
+Floras requires `Python>=3.10,<3.13` and a C++17-compliant compiler (for example `g++>=7.0` or `clang++>=5.0`).
 You can check the versions by running `python --version` and `gcc --version`.
-#### MacOS
-If you are using a Mac, please pre-install [graphviz](https://graphviz.org) and [pygraphviz](https://pygraphviz.github.io).
-Using [conda](https://conda.org/):
-```
-conda install --channel conda-forge pygraphviz
-```
-Or otherwise please install it via brew and pip:
+
+#### Pre-installing Graphviz
+Please pre-install [graphviz](https://graphviz.org) and [pygraphviz](https://pygraphviz.github.io).
+If you are using a Mac, please install it via [brew](https://brew.sh) and [pip](https://pypi.org/project/pip/):
 ```
 brew install graphviz
+pip install pygraphviz
+```
+On Ubuntu, please install graphviz using these commands:
+```
+sudo apt-get install graphviz graphviz-dev
 pip install pygraphviz
 ```
 
@@ -23,7 +25,7 @@ We are using [pdm](https://pdm-project.org/en/latest/) to manage the dependencie
 ```
 pip install pdm
 ```
-Navigate to the repo to install floras and all required dependencies:
+After installing graphviz as described in the last section, navigate to the repo to install floras and the required dependencies:
 ```
 cd floras
 pdm install
@@ -42,6 +44,10 @@ To enter the virtual environment created by pdm:
 ```
 $(pdm venv activate)
 ```
+You can test your installation by running the following command:
+```
+pdm run pytest -v tests
+```
 
 ### Troubleshooting
 Here are common errors we encountered and what we learned to fix the problem.
@@ -57,7 +63,10 @@ pip install --no-cache-dir \
    --config-settings="--global-option=build_ext" \
    --config-settings="--global-option=-I$(brew --prefix graphviz)/include/" \
    --config-settings="--global-option=-L$(brew --prefix graphviz)/lib/" \
+   --use-pep517 \
    pygraphviz
 ```
 
-Floras requires `spot`, which should be automatically installed. If its installation fails, please download [spot](https://spot.lre.epita.fr/install.html) from its source, follow the instructions, and repeat the floras installation.
+If you are using conda, you can try installing graphviz via conda ([this](https://pygraphviz.github.io/documentation/pygraphviz-1.7/install.html) is not recommended but might work for a Python version `<=3.11`). For more info on how to debug the graphviz installation, please check out the [graphviz documentation](https://pygraphviz.github.io/documentation/stable/install.html).
+
+Floras requires `spot`, which should be automatically installed when following the steps above. If the spot installation fails, please download [spot](https://spot.lre.epita.fr/install.html) from its source, follow the instructions in the spot documentation, and repeat the floras installation.

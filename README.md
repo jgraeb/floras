@@ -7,19 +7,22 @@
 Floras documentation can be found [here](https://floras.readthedocs.io).
 
 ### Requirements
-Floras requires `Python>=3.10` and a C++17-compliant compiler (for example `g++>=7.0` or `clang++>=5.0`).
+Floras requires `Python>=3.10,<3.13` and a C++17-compliant compiler (for example `g++>=7.0` or `clang++>=5.0`).
 You can check the versions by running `python --version` and `gcc --version`.
-#### MacOS
-If you are using a Mac, please pre-install [graphviz](https://graphviz.org) and [pygraphviz](https://pygraphviz.github.io).
-Using [conda](https://conda.org/):
-```
-conda install --channel conda-forge pygraphviz
-```
-Or otherwise please install it via brew and pip:
+
+#### Pre-installing Graphviz
+Please pre-install [graphviz](https://graphviz.org) and [pygraphviz](https://pygraphviz.github.io).
+If you are using a Mac, please install it via [brew](https://brew.sh) and [pip](https://pypi.org/project/pip/):
 ```
 brew install graphviz
 pip install pygraphviz
 ```
+On Ubuntu, please install graphviz using these commands:
+```
+sudo apt-get install graphviz graphviz-dev
+pip install pygraphviz
+```
+
 ## Installing Floras
 
 To install floras, please clone the repository:
@@ -49,6 +52,11 @@ To enter the virtual environment created by pdm:
 ```
 $(pdm venv activate)
 ```
+You can test your installation by running the following command:
+```
+pdm run pytest -v tests
+```
+
 For installation instructions and troubleshooting, please visit [this page](https://floras.readthedocs.io/en/latest/contributing/).
 
 
