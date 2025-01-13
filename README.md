@@ -1,3 +1,5 @@
+[![Coverage Status](./reports/coverage/coverage-badge.svg?dummy=8484744)](./reports/htmlcov/index.html)
+
 # Floras: Flow-Based Reactive Test Synthesis for Autonomous Systems
 
 <p align="center">
