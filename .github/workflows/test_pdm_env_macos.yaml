@@ -1,6 +1,6 @@
 ---
 # configuration for GitHub Actions
-name: MacOS Built with PDM
+name: MacOS Build with PDM
 on:
     push:
     pull_request:
