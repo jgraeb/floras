@@ -1,7 +1,12 @@
 ### Build Status
-[![MacOS Build with PDM](https://github.com/jgraeb/floras/actions/workflows/test_pdm_env_macos.yaml/badge.svg)](https://github.com/jgraeb/floras/actions/workflows/test_pdm_env_macos.yaml)
-[![Ubuntu Build with PDM](https://github.com/jgraeb/floras/actions/workflows/main.yaml/badge.svg)](https://github.com/jgraeb/floras/actions/workflows/main.yaml)
+[![MacOS Build with PDM](https://github.com/jgraeb/floras/actions/workflows/macos_build_pdm.yaml/badge.svg?branch=main)](https://github.com/jgraeb/floras/actions/workflows/macos_build_pdm.yaml)
+[![MacOS Build with conda](https://github.com/jgraeb/floras/actions/workflows/macos_build_conda.yaml/badge.svg?branch=main)](https://github.com/jgraeb/floras/actions/workflows/macos_build_conda.yaml)
+
+[![Ubuntu Build with PDM](https://github.com/jgraeb/floras/actions/workflows/ubuntu_build_pdm.yaml/badge.svg?branch=main)](https://github.com/jgraeb/floras/actions/workflows/ubuntu_build_pdm.yaml)
+[![Ubuntu Build with conda](https://github.com/jgraeb/floras/actions/workflows/ubuntu_build_conda.yaml/badge.svg?branch=main)](https://github.com/jgraeb/floras/actions/workflows/ubuntu_build_conda.yaml)
+
 [![Coverage Status](./reports/coverage/coverage-badge.svg?dummy=8484744)](./reports/htmlcov/index.html)
+[![Lint](https://github.com/jgraeb/floras/actions/workflows/lint.yaml/badge.svg?branch=main)](https://github.com/jgraeb/floras/actions/workflows/lint.yaml)
 
 # Floras: Flow-Based Reactive Test Synthesis for Autonomous Systems
 
