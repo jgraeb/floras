@@ -2,6 +2,7 @@
 Class to set up optimization problem, solve it, and parse the output.
 '''
 from gurobipy import GRB
+from gurobipy import *  # noqa: F403
 import time
 import numpy as np
 import networkx as nx
@@ -94,7 +95,7 @@ class MILP():
         '''
         Set up the model for the static case.
         '''
-        self.model = GRB.Model()
+        self.model = Model()  # noqa: F405
         # Define variables
         f = self.model.addVars(self.model_edges, name="flow")
         m = self.model.addVars(self.model_nodes_without_I, name="m")
@@ -124,7 +125,7 @@ class MILP():
         # for the flow on S
         self.map_G_to_S = find_map_G_S(self.GD, self.SD)
 
-        self.model = GRB.Model()
+        self.model = Model()  # noqa: F405
         # Define variables
         f = self.model.addVars(self.model_edges, name="flow")
         m = self.model.addVars(self.model_nodes_without_I, name="m")
