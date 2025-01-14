@@ -1,6 +1,6 @@
 ---
 # configuration for GitHub Actions
-name: floras tests in PDM env - MacOS
+name: MacOS Build with PDM
 on:
     push:
     pull_request:
@@ -27,11 +27,14 @@ jobs:
             - name: Install graphviz
               run: |
                  brew install graphviz
+                 pip install --no-cache-dir \
+                    --config-settings="--global-option=build_ext" \
+                    --config-settings="--global-option=-I$(brew --prefix graphviz)/include/" \
+                    --config-settings="--global-option=-L$(brew --prefix graphviz)/lib/" \
+                    pygraphviz
 
             - name: Install Python dependencies
               run: |
-                export CFLAGS="-I $(brew --prefix graphviz)/include"
-                export LDFLAGS="-L $(brew --prefix graphviz)/lib"
                 pdm install -v
             - name: Try to use cached Spot
               id: cache-spot

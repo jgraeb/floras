@@ -1,5 +1,6 @@
 '''System under test, load a controller for a static environment.'''
 
+
 class Agent:
     def __init__(self, name, pos, goals, grid):
         self.name = name
@@ -18,6 +19,6 @@ class Agent:
         output = self.controller.move()
         self.x = output['x']
         self.y = output['y']
-        self.s = (self.y,self.x)
+        self.s = (self.y, self.x)
         if self.controller.isterminal or self.s in self.goals:
             self.isterminal = True

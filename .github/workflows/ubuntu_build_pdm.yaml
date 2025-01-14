@@ -1,6 +1,6 @@
 ---
 # configuration for GitHub Actions
-name: floras tests in PDM env - Ubuntu
+name: Ubuntu Build with PDM
 on:
     push:
     pull_request:

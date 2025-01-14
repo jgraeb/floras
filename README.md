@@ -1,3 +1,8 @@
+### Build Status
+[![MacOS Build with PDM](https://github.com/jgraeb/floras/actions/workflows/test_pdm_env_macos.yaml/badge.svg)](https://github.com/jgraeb/floras/actions/workflows/test_pdm_env_macos.yaml)
+[![Ubuntu Build with PDM](https://github.com/jgraeb/floras/actions/workflows/main.yaml/badge.svg)](https://github.com/jgraeb/floras/actions/workflows/main.yaml)
+[![Coverage Status](./reports/coverage/coverage-badge.svg?dummy=8484744)](./reports/htmlcov/index.html)
+
 # Floras: Flow-Based Reactive Test Synthesis for Autonomous Systems
 
 <p align="center">

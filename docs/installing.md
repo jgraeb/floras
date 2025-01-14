@@ -5,9 +5,11 @@ You can check the versions by running `python --version` and `gcc --version`.
 
 #### Pre-installing Graphviz
 Please pre-install [graphviz](https://graphviz.org) and [pygraphviz](https://pygraphviz.github.io).
-If you are using a Mac, please install it via [brew](https://brew.sh) and [pip](https://pypi.org/project/pip/):
+If you are using a Mac, please install it via [brew](https://brew.sh):
 ```
 brew install graphviz
+export CFLAGS="-I $(brew --prefix graphviz)/include"
+export LDFLAGS="-L $(brew --prefix graphviz)/lib"
 pip install pygraphviz
 ```
 On Ubuntu, please install graphviz using these commands:
@@ -21,7 +23,7 @@ To install floras directly from source, please clone the repository:
 ```
 git clone https://github.com/tulip-control/floras.git
 ```
-We are using [pdm](https://pdm-project.org/en/latest/) to manage the dependencies.
+We are using [pdm](https://pdm-project.org/en/latest/) to manage the dependencies, please install it using [pip](https://pypi.org/project/pip/).
 ```
 pip install pdm
 ```

@@ -1,8 +1,13 @@
-"""Contains GraphData class for optimization and parses the virtual graphs into the required form."""
+"""Contains GraphData class for optimization and parses the virtual graphs
+into the required form."""
 import networkx as nx
 
+
 class GraphData:
-    def __init__(self, nodes, edges, node_dict, inv_node_dict, acc_sys, acc_test, init, custom_map = None):
+    def __init__(
+            self, nodes, edges, node_dict, inv_node_dict, acc_sys, acc_test,
+            init, custom_map=None
+    ):
         self.nodes = nodes
         self.edges = edges
         self.node_dict = node_dict
@@ -41,7 +46,7 @@ class GraphData:
         return do_not_cut
 
 
-def setup_nodes_and_edges(virtual, virtual_sys, b_pi, case = 'static'):
+def setup_nodes_and_edges(virtual, virtual_sys, b_pi, case='static'):
     # setup nodes and map
     nodes = []
     node_dict = {}
@@ -67,9 +72,12 @@ def setup_nodes_and_edges(virtual, virtual_sys, b_pi, case = 'static'):
     for edge in virtual.G_initial.edges:
         out_node = virtual.reverse_Sdict[edge[0]]
         in_node = virtual.reverse_Sdict[edge[1]]
-        edges.append((inv_node_dict[out_node],inv_node_dict[in_node]))
+        edges.append((inv_node_dict[out_node], inv_node_dict[in_node]))
 
-    GD = GraphData(nodes, edges, node_dict, inv_node_dict, acc_sys, acc_test, init, custom_map = virtual.transys.custom_map)
+    GD = GraphData(
+        nodes, edges, node_dict, inv_node_dict, acc_sys, acc_test,
+        init, custom_map=virtual.transys.custom_map
+    )
 
     if case != 'static':
         # setup system graph
@@ -94,9 +102,11 @@ def setup_nodes_and_edges(virtual, virtual_sys, b_pi, case = 'static'):
         for edge in virtual_sys.G_initial.edges:
             out_node = virtual_sys.reverse_Sdict[edge[0]]
             in_node = virtual_sys.reverse_Sdict[edge[1]]
-            S_edges.append((S_inv_node_dict[out_node],S_inv_node_dict[in_node]))
+            S_edges.append((S_inv_node_dict[out_node], S_inv_node_dict[in_node]))
 
-        S = GraphData(S_nodes, S_edges, S_node_dict, S_inv_node_dict, S_acc_sys, [], S_init)
+        S = GraphData(
+            S_nodes, S_edges, S_node_dict, S_inv_node_dict, S_acc_sys, [], S_init
+        )
     else:
         S = None
 

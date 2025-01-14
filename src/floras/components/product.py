@@ -1,17 +1,15 @@
 """Contains Product class for virtual product graph and virtual system graph."""
 import sys
-sys.path.append("..")
 import spot
-from matplotlib import pyplot as plt
-from ipdb import set_trace as st
 from collections import OrderedDict as od
 import os
 import networkx as nx
 from itertools import product
 from floras.components.transition_system import TranSys
-from floras.components.automata import Automaton
 
+sys.path.append("..")
 spot.setup(show_default='.tvb')
+
 
 class Product(TranSys):
     """
@@ -27,8 +25,8 @@ class Product(TranSys):
     """
     def __init__(self, transys, spec_prod_automaton):
         super().__init__()
-        self.transys=transys
-        self.automaton=spec_prod_automaton
+        self.transys = transys
+        self.automaton = spec_prod_automaton
         self.G_initial = None
         self.G = None
         self.S = list(product(transys.S, spec_prod_automaton.Q))
@@ -36,14 +34,14 @@ class Product(TranSys):
         self.reverse_Sdict = od()
         for k in range(len(self.S)):
             self.Sdict[self.S[k]] = "s"+str(k)
-            self.reverse_Sdict["s"+str(k)] = self.S[k]
+            self.reverse_Sdict["s" + str(k)] = self.S[k]
         self.A = transys.A
-        self.I = [(init, spec_prod_automaton.qinit) for init in transys.I]
+        self.I = [(init, spec_prod_automaton.qinit) for init in transys.I]  # noqa: E741
         self.AP = spec_prod_automaton.Q
 
     def print_transitions(self):
         for e_out, e_in in self.E.items():
-            print("node out: " + str(e_out) +  " node in: " + str(e_in))
+            print("node out: " + str(e_out) + " node in: " + str(e_in))
 
     def pruned_sync_prod(self):
         self.construct_labels()
@@ -59,18 +57,18 @@ class Product(TranSys):
 
         while len(nodes_to_add) > 0:
             next_nodes = []
-            for (s,q) in nodes_to_add:
+            for (s, q) in nodes_to_add:
                 for a in self.transys.A:
-                    if (s,a) in list(self.transys.E.keys()):
-                        t = self.transys.E[(s,a)]
+                    if (s, a) in list(self.transys.E.keys()):
+                        t = self.transys.E[(s, a)]
                         for p in self.automaton.Q:
-                            if (q,p) in aut_state_edges:
+                            if (q, p) in aut_state_edges:
                                 label = self.transys.L[t]
                                 if self.automaton.get_transition(q, label) == p:
-                                    self.E[((s,q), a)] = (t,p)
-                                    if (t,p) not in nodes_to_keep:
-                                        nodes_to_keep.append((t,p))
-                                        next_nodes.append((t,p))
+                                    self.E[((s, q), a)] = (t, p)
+                                    if (t, p) not in nodes_to_keep:
+                                        nodes_to_keep.append((t, p))
+                                        next_nodes.append((t, p))
             nodes_to_add = next_nodes
 
         self.S = nodes_to_keep
@@ -82,7 +80,6 @@ class Product(TranSys):
         edges = []
         for state_act, in_node in self.E.items():
             out_node = state_act[0]
-            act = state_act[1]
             s_out = self.Sdict[out_node]
             s_in = self.Sdict[in_node]
             edges.append((s_out, s_in))
@@ -99,8 +96,8 @@ class Product(TranSys):
         self.src = [s for s in self.I]
         try:
             self.int = [s for s in self.S if s[1] in self.automaton.Acc["test"]]
-        except:
-            self.int=[]
+        except:  # noqa: E722
+            self.int = []
         self.sink = [s for s in self.S if s[1] in self.automaton.Acc["sys"]]
 
     def process_nodes(self, node_list):
@@ -124,13 +121,12 @@ class Product(TranSys):
     def to_graph(self):
         self.G = nx.DiGraph()
         self.G.add_nodes_from(list(self.Sdict.values()))
-        self.plt_sink_only = [] # Finding relevant nodes connected to graph with edges
-        self.plt_int_only= []
+        self.plt_sink_only = []  # Finding relevant nodes connected to graph with edges
+        self.plt_int_only = []
         self.plt_sink_int = []
         self.plt_src = []
         edges = []
         edge_attr = dict()
-        node_attr = dict()
         for state_act, in_node in self.E.items():
             out_node = state_act[0]
             act = state_act[1]
@@ -142,8 +138,7 @@ class Product(TranSys):
         nx.set_edge_attributes(self.G, edge_attr)
 
     def base_dot_graph(self, graph=None):
-        if graph == None:
-            st()
+        if graph is None:
             G_agr = nx.nx_agraph.to_agraph(self.G)
         else:
             G_agr = nx.nx_agraph.to_agraph(graph)
@@ -153,7 +148,6 @@ class Product(TranSys):
 
         for i in G_agr.nodes():
             n = G_agr.get_node(i)
-            node = self.reverse_Sdict[n]
             n.attr['shape'] = 'circle'
             if n in self.plt_sink_only:
                 n.attr['fillcolor'] = '#ffb000'
@@ -165,16 +159,16 @@ class Product(TranSys):
                 n.attr['fillcolor'] = '#dc267f'
             else:
                 n.attr['fillcolor'] = '#ffffff'
-            n.attr['label']= ''
+            n.attr['label'] = ''
         return G_agr
 
     def save_plot(self, fn):
         G_agr = self.base_dot_graph(graph=self.G_initial)
         if not os.path.exists("imgs"):
             os.makedirs("imgs")
-        G_agr.draw("imgs/"+fn+".pdf",prog='dot')
+        G_agr.draw("imgs/" + fn + ".pdf", prog='dot')
 
-    def save_result_plot(self,cuts,fn):
+    def save_result_plot(self, cuts, fn):
         G_agr = self.base_dot_graph(graph=self.G_initial)
         # highlight cut edges
         graph_cut_edges = []
@@ -184,7 +178,6 @@ class Product(TranSys):
                 if out_node == cut_edge[0] and in_node == cut_edge[1]:
                     graph_cut_edges.append((self.Sdict[out_node], self.Sdict[in_node]))
         for e in G_agr.edges():
-            edge = G_agr.get_edge(*e)
             if e in graph_cut_edges:
                 e.attr['color'] = 'red'
                 e.attr['style'] = 'dashed'
@@ -192,7 +185,7 @@ class Product(TranSys):
 
         if not os.path.exists("imgs"):
             os.makedirs("imgs")
-        G_agr.draw("imgs/"+fn+".pdf",prog='dot')
+        G_agr.draw("imgs/"+fn+".pdf", prog='dot')
 
 
 def sync_prod(system, aut):
