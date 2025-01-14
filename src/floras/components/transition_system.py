@@ -16,7 +16,7 @@ class TransitionSystemInput():
         labels: Labels of each system state.
         init: Initial state of the system.
     """
-    def __init__(self,states,transitions,labels, init, custom_map = None):
+    def __init__(self,states,transitions,labels, init, custom_map=None):
         self.states = states
         self.transitions = transitions
         self.labels = labels
