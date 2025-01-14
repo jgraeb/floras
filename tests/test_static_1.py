@@ -1,21 +1,32 @@
 """Testing current code in static setup."""
-import pytest
 
 import sys
-sys.path.append('../')
-from floras.components.automata import get_system_automaton, get_tester_automaton, get_product_automaton
+from floras.components.automata import (
+    get_system_automaton,
+    get_tester_automaton,
+    get_product_automaton
+)
 from floras.components.transition_system import TransitionSystemInput, TranSys
 from floras.components.product import sync_prod
 from floras.optimization.optimize import solve
 
+sys.path.append('../')
+
+
 def test_static():
-    states_list = [0,1,2,3,4,5]
-    transitions_dict = {0: [1,2,3], 1: [2,3,4], 2: [3,4,5], 3: [4], 4: [5,0], 5: [5]}
-    labels_dict = {0 : ['a'], 5: ['goal'], 3: ['int']}
+    states_list = [0, 1, 2, 3, 4, 5]
+    transitions_dict = {0: [1, 2, 3],
+                        1: [2, 3, 4],
+                        2: [3, 4, 5],
+                        3: [4],
+                        4: [5, 0],
+                        5: [5]}
+    labels_dict = {0: ['a'], 5: ['goal'], 3: ['int']}
     init_list = [0]
 
-    transition_system_input = TransitionSystemInput(states_list, transitions_dict, labels_dict, init_list)
-
+    transition_system_input = TransitionSystemInput(
+        states_list, transitions_dict, labels_dict, init_list
+    )
     sys_formula = 'F(goal)'
     test_formula = 'F(int)'
 
@@ -31,6 +42,6 @@ def test_static():
     virtual_sys = sync_prod(transys, sys_aut)
     virtual = sync_prod(transys, prod_aut)
 
-    d, flow = solve(virtual, transys, prod_aut, virtual_sys, case = 'static')
+    d, flow = solve(virtual, transys, prod_aut, virtual_sys, case='static')
 
     assert flow >= 1.0

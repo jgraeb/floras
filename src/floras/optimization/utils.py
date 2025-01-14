@@ -1,4 +1,4 @@
-def find_map_G_S(GD,SD):
+def find_map_G_S(GD, SD):
     G_truncated = {}
     S_annot = {}
     map_G_to_S = {}
@@ -9,7 +9,7 @@ def find_map_G_S(GD,SD):
     for node in G_truncated:
         sys_node_list = []
         for sys_node in S_annot:
-            if G_truncated[node]  == S_annot[sys_node]:
+            if G_truncated[node] == S_annot[sys_node]:
                 sys_node_list.append(sys_node)
         map_G_to_S.update({node: sys_node_list})
 

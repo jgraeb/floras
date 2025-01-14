@@ -1,13 +1,11 @@
-''' 
+'''
 The Game class for simulation - consisting of the grid world layout and the system
 No dynamic tester or reactive obstacles in this implementation
 '''
 
-from ipdb import set_trace as st
 from copy import deepcopy
-import random
-import _pickle as pickle
 from floras.simulation.utils import load_opt_from_pkl_file
+
 
 class Game:
     def __init__(self, grid, sys):
@@ -18,12 +16,12 @@ class Game:
         self.setup()
 
     def get_optimization_results(self):
-    # Read pickle file - if not there solve optimization and save.
+        # Read pickle file - if not there solve optimization and save.
         try:
             print('Checking for the optimization results')
             cuts = load_opt_from_pkl_file()
             print('Optimization results loaded successfully')
-        except:
+        except:  # noqa: E722
             print('Result file not found, need to run the optimization first')
             # st()
         return cuts
@@ -31,7 +29,7 @@ class Game:
     def setup(self):
         opt_res = self.get_optimization_results()
         self.grid.add_cuts(opt_res['cuts'])
-        if not self.agent.controller: # check if agent controller already exists
+        if not self.agent.controller:  # check if agent controller already exists
             self.agent.find_controller(self.grid)
 
     def print_game_state(self):

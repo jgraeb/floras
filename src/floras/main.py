@@ -3,12 +3,13 @@ import ast
 import argparse
 
 from floras.optimization.optimize import solve
-from floras.components.automata import get_system_automaton, get_tester_automaton, get_product_automaton
+from floras.components.automata import (
+    get_system_automaton, get_tester_automaton, get_product_automaton
+)
 from floras.components.transition_system import TranSys, TransitionSystemInput
 from floras.components.product import sync_prod
 from floras.components.utils import get_states_and_transitions_from_file
 
-from ipdb import set_trace as st
 
 def get_automata(sys_formula, test_formula):
     # get automata
@@ -17,16 +18,19 @@ def get_automata(sys_formula, test_formula):
     prod_aut = get_product_automaton(spot_aut_sys, spot_aut_test)
     return sys_aut, test_aut, prod_aut
 
+
 def get_transition_system(transition_system_input):
     # get transition system
     transys = TranSys(transition_system_input)
     return transys
+
 
 def get_virtuals(transys, sys_aut, prod_aut):
     # get virtual graphs
     virtual_sys = sync_prod(transys, sys_aut)
     virtual = sync_prod(transys, prod_aut)
     return virtual, virtual_sys
+
 
 def extract_test_data(filename):
     with open(filename, 'r') as file:
@@ -51,9 +55,9 @@ def extract_test_data(filename):
 
 
 def find_test_environment(filename):
-    init, goals, labels, sysformula, testformula, states, transitions, type = extract_test_data(filename)
+    init, goals, labels, sysformula, testformula, states, transitions, type = extract_test_data(filename)  # noqa: E501
     # get transition_system_input from states and transitions
-    transition_system_input = TransitionSystemInput(states,transitions,labels, init)
+    transition_system_input = TransitionSystemInput(states, transitions, labels, init)
 
     # setup problem
     sys_aut, test_aut, prod_aut = get_automata(sysformula, testformula)
@@ -61,20 +65,21 @@ def find_test_environment(filename):
     virtual, virtual_sys = get_virtuals(transys, sys_aut, prod_aut)
 
     # optimize
-    d, flow = solve(virtual, transys, prod_aut, virtual_sys, case = type)
+    d, flow = solve(virtual, transys, prod_aut, virtual_sys, case=type)
 
     # print output
     ncuts = 0
     for cut in d:
         if d[cut] > 0.9:
-            ncuts+=1
-            print('{0} to {1} at {2}'.format(cut[0], cut[1],d[cut]))
+            ncuts += 1
+            print('{0} to {1} at {2}'.format(cut[0], cut[1], d[cut]))
 
     return d, flow
 
 
 def save_output(filename):
     pass
+
 
 def main():
     parser = argparse.ArgumentParser(
