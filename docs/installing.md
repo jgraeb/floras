@@ -4,16 +4,16 @@ Floras requires `Python>=3.10,<3.13` and a C++17-compliant compiler (for example
 You can check the versions by running `python --version` and `gcc --version`.
 
 #### Pre-installing Graphviz
-Please pre-install [graphviz](https://graphviz.org) and [pygraphviz](https://pygraphviz.github.io).
-If you are using a Mac, please install it via [brew](https://brew.sh) and [pip](https://pypi.org/project/pip/):
+Please pre-install [graphviz](https://graphviz.org).
+If you are using a Mac, please install it via [brew](https://brew.sh):
 ```
 brew install graphviz
-pip install pygraphviz
+export CFLAGS="-I $(brew --prefix graphviz)/include"
+export LDFLAGS="-L $(brew --prefix graphviz)/lib"
 ```
 On Ubuntu, please install graphviz using these commands:
 ```
 sudo apt-get install graphviz graphviz-dev
-pip install pygraphviz
 ```
 
 ### From Source
@@ -21,7 +21,7 @@ To install floras directly from source, please clone the repository:
 ```
 git clone https://github.com/tulip-control/floras.git
 ```
-We are using [pdm](https://pdm-project.org/en/latest/) to manage the dependencies.
+We are using [pdm](https://pdm-project.org/en/latest/) to manage the dependencies, please install it using [pip](https://pypi.org/project/pip/).
 ```
 pip install pdm
 ```
