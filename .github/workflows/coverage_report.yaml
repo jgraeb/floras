@@ -1,0 +1,58 @@
+name: Coverage
+on:
+  push:
+  pull_request:
+
+jobs:
+  get-test-coverage:
+    name: Get test coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.11
+
+      - uses: pdm-project/setup-pdm@v4
+        with:
+            python-version: ${{ matrix.python-version }}
+            cache: true
+      - name: Setup testing environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+              libgraphviz-dev \
+              graphviz
+      - name: Install Python dependencies
+        run: |
+          pdm install
+      - name: Try to use cached Spot
+        id: cache-spot
+        uses: actions/cache@v4
+        with:
+            path: spot-2.12
+            key: setup-pdm-Linux-X64-python-3.11-${{ hashFiles('pyproject.toml') }}
+      - name: Install Spot
+        if: steps.cache-spot.outputs.cache-hit == 'true'
+        run: |
+          cd spot-2.12
+          make install
+      - name: Build and install Spot
+        if: steps.cache-spot.outputs.cache-hit != 'true'
+        run: |
+          pdm run python get_spot.py
+      - name: Run tests
+        run: |
+          pdm run pytest --cov-branch --cov-report=xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: codecov-floras
+          fail_ci_if_error: true
+          files: htmlcov/*
+          verbose: true
