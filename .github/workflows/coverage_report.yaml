@@ -46,7 +46,7 @@ jobs:
                 pdm add pytest pytest-cov
             - name: Run tests with coverage
               run: |
-                pdm run pytest --cov-branch --cov-report=xml
+                pdm run pytest --cov-branch --cov-report xml:htmlcov/coverage.xml
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v5
               with:
