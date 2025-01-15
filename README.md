@@ -5,7 +5,7 @@
 [![Ubuntu Build with PDM](https://github.com/jgraeb/floras/actions/workflows/ubuntu_build_pdm.yaml/badge.svg?branch=main)](https://github.com/jgraeb/floras/actions/workflows/ubuntu_build_pdm.yaml)
 [![Ubuntu Build with conda](https://github.com/jgraeb/floras/actions/workflows/ubuntu_build_conda.yaml/badge.svg?branch=main)](https://github.com/jgraeb/floras/actions/workflows/ubuntu_build_conda.yaml)
 
-[![Coverage Status](./reports/coverage/coverage-badge.svg?dummy=8484744)](./reports/htmlcov/index.html)
+[![codecov](https://codecov.io/github/jgraeb/floras/graph/badge.svg?token=XB5ZDOWZK2)](https://codecov.io/github/jgraeb/floras)
 [![Lint](https://github.com/jgraeb/floras/actions/workflows/lint.yaml/badge.svg?branch=main)](https://github.com/jgraeb/floras/actions/workflows/lint.yaml)
 
 # Floras: Flow-Based Reactive Test Synthesis for Autonomous Systems
