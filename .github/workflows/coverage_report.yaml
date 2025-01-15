@@ -46,12 +46,12 @@ jobs:
                 pdm add pytest pytest-cov
             - name: Run tests with coverage
               run: |
-                pdm run pytest --cov-branch --cov-report xml:htmlcov/coverage.xml
+                pdm run pytest --cov-branch --cov-report xml:coverage.xml
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v5
               with:
                 token: ${{ secrets.CODECOV_TOKEN }}
                 name: codecov-floras
                 fail_ci_if_error: true
-                files: htmlcov/*
+                files: coverage.xml
                 verbose: true
