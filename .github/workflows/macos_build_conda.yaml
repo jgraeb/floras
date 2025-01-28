@@ -5,7 +5,7 @@ on:
 
 jobs:
   create-env:
-    name: Testing conda env (${{ matrix.python-version }}, ${{ matrix.os }})
+    name: Testing Build (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

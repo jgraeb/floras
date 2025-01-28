@@ -7,7 +7,7 @@ on:
 
 jobs:
     build:
-        name: Build and test
+        name: Testing Build (${{ matrix.python-version }}, ${{ matrix.os }})
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
@@ -28,15 +28,15 @@ jobs:
               run: |
                  brew install graphviz
                  pip install --no-cache-dir \
-                    --config-settings="--global-option=build_ext" \
-                    --config-settings="--global-option=-I$(brew --prefix graphviz)/include/" \
-                    --config-settings="--global-option=-L$(brew --prefix graphviz)/lib/" \
-                    pygraphviz
+                  --config-settings="--global-option=build_ext" \
+                  --config-settings="--global-option=-I$(brew --prefix graphviz)/include/" \
+                  --config-settings="--global-option=-L$(brew --prefix graphviz)/lib/" \
+                  --use-pep517 \
+                  pygraphviz
 
             - name: Install Python dependencies
               run: |
                 pdm install -v
-                pdm install -G tests
             - name: Try to use cached Spot
               id: cache-spot
               uses: actions/cache@v4
@@ -52,6 +52,9 @@ jobs:
               if: steps.cache-spot.outputs.cache-hit != 'true'
               run: |
                 pdm run python get_spot.py
+            - name: Install dependencies for testing
+              run: |
+                pdm install -G tests
             - name: Run tests
               run: |
                 pdm run pytest -v tests
