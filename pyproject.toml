@@ -23,17 +23,16 @@ dependencies = [
     "networkx>=3.0",
     "scipy>=1.10.1",
     "tulip==1.4.0",
-    "pytest>=8.3.3",
-    "coverage>=7.6.1",
     "pygraphviz>=1.13",
-    "mkdocs>=1.6.1",
-    "mkdocs-material>=9.5.34",
-    "mkdocstrings-python>=1.11.1",
     "jupyter>=1.1.1",
 ]
 requires-python = ">=3.10,<3.13"
 version = "0.0.0"
 readme = "README.md"
+
+[project.optional-dependencies]
+docs = ["mkdocs>=1.6.1", "mkdocs-material>=9.5.34", "mkdocstrings-python>=1.11.1"]
+tests = ["pytest>=8.3.3", "coverage>=7.6.1"]
 
 [project.scripts]
 from_json = "floras.main:main"

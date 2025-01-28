@@ -65,7 +65,7 @@ jobs:
           pdm run python get_spot.py
 
       - name : Install Package for Testing
-        run : conda install pytest
+        run : pdm install -G tests
 
       - name : Run tests
         run : pdm run pytest -v tests

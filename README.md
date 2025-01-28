@@ -64,6 +64,7 @@ $(pdm venv activate)
 ```
 You can test your installation by running the following command:
 ```
+pdm install -G tests
 pdm run pytest -v tests
 ```
 

@@ -1,5 +1,5 @@
 site_name: Floras - Flow-based Reactive Test Synthesis for Autonomous Systems
-site_url: https://example.com
+site_url: https://floras.readthedocs.io
 theme:
   name: material
 
@@ -34,4 +34,4 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML
 
 copyright: >
-  Copyright &copy; 2024 - <script>document.write(new Date().getFullYear())</script> Caltech
+  Copyright &copy; 2024 - 2025 Caltech

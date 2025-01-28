@@ -32,6 +32,7 @@ jobs:
             - name: Install Python dependencies
               run: |
                 pdm install
+                pdm install -G tests
             - name: Try to use cached Spot
               id: cache-spot
               uses: actions/cache@v4
