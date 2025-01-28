@@ -27,13 +27,10 @@ jobs:
             - name: Install graphviz
               run: |
                 brew install graphviz
-                export GRAPHVIZ_PREFIX=$(brew --prefix graphviz)
-                export CFLAGS="-I${GRAPHVIZ_PREFIX}/include"
-                export LDFLAGS="-L${GRAPHVIZ_PREFIX}/lib"
-                pip install pygraphviz
-
             - name: Install Python dependencies
               run: |
+                export CFLAGS="-I $(brew --prefix graphviz)/include"
+                export LDFLAGS="-L $(brew --prefix graphviz)/lib"
                 pdm install -v
             - name: Try to use cached Spot
               id: cache-spot
