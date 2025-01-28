@@ -70,6 +70,11 @@ pdm run pytest -v tests
 
 If these instructions don't work for you, you can find more information about the installation process and troubleshooting, please visit [the floras documentation](https://floras.readthedocs.io/en/latest/installing/).
 
+You can also build the documentation by running:
+```
+pdm install -G docs
+pdm run mkdocs build
+```
 
 The floras repository contains implementations of the algorithms developed in the following paper:
 
