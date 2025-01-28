@@ -14,7 +14,7 @@
   <img src="https://raw.githubusercontent.com/jgraeb/floras/refs/heads/main/docs/logo.png" width="250" />
 </p>
 
-Floras documentation can be found [here](https://floras.readthedocs.io).
+Detailed installation instruction and the user's guide can be found in the [floras documentation](https://floras.readthedocs.io).
 
 ### Requirements
 Floras requires `Python>=3.10,<3.13` and a C++17-compliant compiler (for example `g++>=7.0` or `clang++>=5.0`).
@@ -67,7 +67,7 @@ You can test your installation by running the following command:
 pdm run pytest -v tests
 ```
 
-For installation instructions and troubleshooting, please visit [this page](https://floras.readthedocs.io/en/latest/contributing/).
+If these instructions don't work for you, you can find more information about the installation process and troubleshooting, please visit [the floras documentation](https://floras.readthedocs.io/en/latest/installing/).
 
 
 The floras repository contains implementations of the algorithms developed in the following paper:
