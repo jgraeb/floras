@@ -26,13 +26,11 @@ jobs:
 
             - name: Install graphviz
               run: |
-                 brew install graphviz
-                 pip install --no-cache-dir \
-                  --config-settings="--global-option=build_ext" \
-                  --config-settings="--global-option=-I$(brew --prefix graphviz)/include/" \
-                  --config-settings="--global-option=-L$(brew --prefix graphviz)/lib/" \
-                  --use-pep517 \
-                  pygraphviz
+                brew install graphviz
+                export GRAPHVIZ_PREFIX=$(brew --prefix graphviz)
+                export CFLAGS="-I${GRAPHVIZ_PREFIX}/include"
+                export LDFLAGS="-L${GRAPHVIZ_PREFIX}/lib"
+                pip install pygraphviz
 
             - name: Install Python dependencies
               run: |
