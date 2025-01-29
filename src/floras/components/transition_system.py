@@ -1,11 +1,8 @@
 import spot
-import pdb
-# from ast import literal_eval as make_tuple
-import matplotlib.pyplot as plt
 from collections import OrderedDict as od
 import networkx as nx
 import os
-from ipdb import set_trace as st
+
 
 class TransitionSystemInput():
     """Input format containing data to create a transition system.
@@ -16,23 +13,26 @@ class TransitionSystemInput():
         labels: Labels of each system state.
         init: Initial state of the system.
     """
-    def __init__(self,states,transitions,labels, init):
+    def __init__(self, states, transitions, labels, init, custom_map=None):
         self.states = states
         self.transitions = transitions
         self.labels = labels
         self.init = init
         self.next_state_dict = None
+        self.custom_map = custom_map
         self.setup()
 
     def setup(self):
         self.next_state_dict = self.transitions
+
 
 class TranSys():
     """Transition system class.
     T = (S, A, delta, S_init, AP, L).
 
     Args:
-        transition_system_input: input format for states, transitions, initial states, and labels.
+        transition_system_input: input format for states,
+        transitions, initial states, and labels.
         S: states
         A: actions
         E: transition relation
@@ -40,38 +40,42 @@ class TranSys():
         AP_dict: the set of atomic propositions
         L: labels
     """
-    def __init__(self, transition_system_input = None, S=None, A=None, E=None, I=None, AP_dict=None, L=None):
+    def __init__(
+            self, transition_system_input=None, S=None,
+            A=None, E=None, I=None, AP_dict=None, L=None  # noqa: E741
+            ):
         self.S = S
         self.A = A
         self.E = E
-        self.I = I
+        self.I = I  # noqa: E741
         self.AP_dict = AP_dict
-        self.Sigma=None
+        self.Sigma = None
         self.AP = None
         self.L = None
         self.G = None
+        self.custom_map = None
         self.input = transition_system_input
         if self.input:
             self.setup()
+            self.custom_map = transition_system_input.custom_map
 
     def setup(self):
         """
         Set up the transition system from the input data.
         """
         self.S = list(self.input.states)
-        self.A = ['act'+str(k) for k in range(0,5)] # update for different actions later
+        self.A = ['act' + str(k) for k in range(0, 8)]
         self.construct_transition_function()
         self.get_APs()
         self.construct_initial_conditions()
         self.construct_labels()
-
 
     def print_transitions(self):
         """
         Print all transitions.
         """
         for e_out, e_in in self.E.items():
-            print("node out: " + str(e_out) +  " node in: " + str(e_in))
+            print("node out: " + str(e_out) + " node in: " + str(e_in))
 
     def construct_transition_function(self):
         """
@@ -81,7 +85,7 @@ class TranSys():
         for s in self.input.states:
             i = 0
             for ns in self.input.transitions[s]:
-                self.E[(s, 'act'+str(i))] = ns
+                self.E[(s, 'act' + str(i))] = ns
                 i += 1
 
     def get_APs(self):
@@ -92,7 +96,7 @@ class TranSys():
         Need to setup atomic propositions.
         """
         self.AP_dict = od()
-        for s in self.S: # If the system state is the init or goal
+        for s in self.S:  # If the system state is the init or goal
             self.AP_dict[s] = []
             if s in self.input.labels:
                 labels = self.input.labels[s]
@@ -103,7 +107,7 @@ class TranSys():
         """
         Set the initial state.
         """
-        self.I = self.input.init
+        self.I = self.input.init  # noqa: E741
 
     def construct_labels(self):
         """
@@ -128,7 +132,7 @@ class TranSys():
 
         edges = []
         edge_attr = dict()
-        node_attr = dict()
+        # node_attr = dict()
         for state_act, in_node in self.E.items():
             out_node = state_act[0]
             act = state_act[1]
@@ -149,4 +153,4 @@ class TranSys():
 
         if not os.path.exists("imgs"):
             os.makedirs("imgs")
-        G_agr.draw("imgs/"+fn+".pdf",prog='dot')
+        G_agr.draw("imgs/" + fn + ".pdf", prog='dot')

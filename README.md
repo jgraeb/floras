@@ -1,25 +1,38 @@
+### Build Status
+[![MacOS Build with PDM](https://github.com/tulip-control/floras/actions/workflows/macos_build_pdm.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/macos_build_pdm.yaml)
+[![MacOS Build with conda](https://github.com/tulip-control/floras/actions/workflows/macos_build_conda.yaml/badge.svg?branch=main)](https://github.com/jgraeb/tulip-control/actions/workflows/macos_build_conda.yaml)
+
+[![Ubuntu Build with PDM](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_pdm.yaml/badge.svg?branch=main)](https://github.com/jgraeb/tulip-control/actions/workflows/ubuntu_build_pdm.yaml)
+[![Ubuntu Build with conda](https://github.com/jgraeb/tulip-control/actions/workflows/ubuntu_build_conda.yaml/badge.svg?branch=main)](https://github.com/tulip-control/tulip-control/actions/workflows/ubuntu_build_conda.yaml)
+
+[![codecov](https://codecov.io/gh/tulip-control/floras/graph/badge.svg?token=35W9GHZD3R)](https://codecov.io/gh/tulip-control/floras)
+[![Lint](https://github.com/jgraeb/tulip-control/actions/workflows/lint.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/lint.yaml)
+
 # Floras: Flow-Based Reactive Test Synthesis for Autonomous Systems
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/jgraeb/floras/refs/heads/main/docs/logo.png" width="250" />
 </p>
 
-Floras documentation can be found [here](https://floras.readthedocs.io).
+Detailed installation instruction and the user's guide can be found in the [floras documentation](https://floras.readthedocs.io).
 
 ### Requirements
-Floras requires `Python>=3.10` and a C++17-compliant compiler (for example `g++>=7.0` or `clang++>=5.0`).
+Floras requires `Python>=3.10,<3.13` and a C++17-compliant compiler (for example `g++>=7.0` or `clang++>=5.0`).
 You can check the versions by running `python --version` and `gcc --version`.
-#### MacOS
-If you are using a Mac, please pre-install [graphviz](https://graphviz.org) and [pygraphviz](https://pygraphviz.github.io).
-Using [conda](https://conda.org/):
-```
-conda install --channel conda-forge pygraphviz
-```
-Or otherwise please install it via brew and pip:
+
+#### Pre-installing Graphviz
+Please pre-install [graphviz](https://graphviz.org) and [pygraphviz](https://pygraphviz.github.io).
+If you are using a Mac, please install it via [brew](https://brew.sh) and [pip](https://pypi.org/project/pip/):
 ```
 brew install graphviz
 pip install pygraphviz
 ```
+On Ubuntu, please install graphviz using these commands:
+```
+sudo apt-get install graphviz graphviz-dev
+pip install pygraphviz
+```
+
 ## Installing Floras
 
 To install floras, please clone the repository:
@@ -49,8 +62,19 @@ To enter the virtual environment created by pdm:
 ```
 $(pdm venv activate)
 ```
-For installation instructions and troubleshooting, please visit [this page](https://floras.readthedocs.io/en/latest/contributing/).
+You can test your installation by running the following command:
+```
+pdm install -G tests
+pdm run pytest -v tests
+```
 
+If these instructions don't work for you, you can find more information about the installation process and troubleshooting, please visit [the floras documentation](https://floras.readthedocs.io/en/latest/installing/).
+
+You can also build the documentation by running:
+```
+pdm install -G docs
+pdm run mkdocs build
+```
 
 The floras repository contains implementations of the algorithms developed in the following paper:
 
