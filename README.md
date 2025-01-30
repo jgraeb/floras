@@ -1,17 +1,17 @@
 ### Build Status
 [![MacOS Build with PDM](https://github.com/tulip-control/floras/actions/workflows/macos_build_pdm.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/macos_build_pdm.yaml)
-[![MacOS Build with conda](https://github.com/tulip-control/floras/actions/workflows/macos_build_conda.yaml/badge.svg?branch=main)](https://github.com/jgraeb/tulip-control/actions/workflows/macos_build_conda.yaml)
+[![MacOS Build with conda](https://github.com/tulip-control/floras/actions/workflows/macos_build_conda.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/macos_build_conda.yaml)
 
-[![Ubuntu Build with PDM](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_pdm.yaml/badge.svg?branch=main)](https://github.com/jgraeb/tulip-control/actions/workflows/ubuntu_build_pdm.yaml)
-[![Ubuntu Build with conda](https://github.com/jgraeb/tulip-control/actions/workflows/ubuntu_build_conda.yaml/badge.svg?branch=main)](https://github.com/tulip-control/tulip-control/actions/workflows/ubuntu_build_conda.yaml)
+[![Ubuntu Build with PDM](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_pdm.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_pdm.yaml)
+[![Ubuntu Build with conda](https://github.com/tulip-control/tulip-control/actions/workflows/ubuntu_build_conda.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_conda.yaml)
 
 [![codecov](https://codecov.io/gh/tulip-control/floras/graph/badge.svg?token=35W9GHZD3R)](https://codecov.io/gh/tulip-control/floras)
-[![Lint](https://github.com/jgraeb/tulip-control/actions/workflows/lint.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/lint.yaml)
+[![Lint](https://github.com/tulip-control/floras/actions/workflows/lint.yaml/badge.svg)](https://github.com/tulip-control/floras/actions/workflows/lint.yaml)
 
 # Floras: Flow-Based Reactive Test Synthesis for Autonomous Systems
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jgraeb/floras/refs/heads/main/docs/logo.png" width="250" />
+  <img src="https://raw.githubusercontent.com/tulip-control/floras/refs/heads/main/docs/logo.png" width="250" />
 </p>
 
 Detailed installation instruction and the user's guide can be found in the [floras documentation](https://floras.readthedocs.io).

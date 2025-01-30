@@ -70,6 +70,6 @@ pip install --no-cache-dir \
    pygraphviz
 ```
 
-If you are using conda, you can try installing graphviz via conda ([this installation procedure](https://pygraphviz.github.io/documentation/pygraphviz-1.7/install.html) is not recommended but might work for a Python version `<=3.11`). For more info on how to debug the graphviz installation, please check out the [graphviz documentation](https://pygraphviz.github.io/documentation/stable/install.html).
+If you are using conda, you can try installing graphviz via conda ([this installation procedure](https://pygraphviz.github.io/documentation/pygraphviz-1.7/install.html) is not recommended but might work for a Python version `<=3.11`). For more info on how to debug the pygraphviz installation, please check out the [graphviz documentation](https://pygraphviz.github.io/documentation/stable/install.html) and this [github issue](https://github.com/pygraphviz/pygraphviz/issues/11).
 
 Floras requires `spot`, which should be automatically installed when following the steps above. If the spot installation fails, please download [spot](https://spot.lre.epita.fr/install.html) from its source, follow the instructions in the spot documentation, and repeat the floras installation.
