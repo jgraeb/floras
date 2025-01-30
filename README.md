@@ -3,7 +3,7 @@
 [![MacOS Build with conda](https://github.com/tulip-control/floras/actions/workflows/macos_build_conda.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/macos_build_conda.yaml)
 
 [![Ubuntu Build with PDM](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_pdm.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_pdm.yaml)
-[![Ubuntu Build with conda](https://github.com/tulip-control/tulip-control/actions/workflows/ubuntu_build_conda.yaml/badge.svg?branch=main)](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_conda.yaml)
+[![Ubuntu Build with conda](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_conda.yaml/badge.svg)](https://github.com/tulip-control/floras/actions/workflows/ubuntu_build_conda.yaml)
 
 [![codecov](https://codecov.io/gh/tulip-control/floras/graph/badge.svg?token=35W9GHZD3R)](https://codecov.io/gh/tulip-control/floras)
 [![Lint](https://github.com/tulip-control/floras/actions/workflows/lint.yaml/badge.svg)](https://github.com/tulip-control/floras/actions/workflows/lint.yaml)
