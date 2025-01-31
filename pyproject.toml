@@ -35,6 +35,7 @@ docs = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.5.34",
     "mkdocstrings-python>=1.11.1",
+    "mkdocs-jupyter>=0.25.1",
 ]
 tests = [
     "pytest>=8.3.3",
