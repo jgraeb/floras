@@ -6,9 +6,8 @@ theme:
 nav:
   - Home:
     - Welcome: index.md
-    - Installing: installing.md
-  - Getting Started:
-    - Installation: installing.md
+  - Installing: installing.md
+  - Getting Started: getting_started.ipynb
   - API:
     - Automata: automata.md
     - Product: product.md
@@ -24,6 +23,7 @@ plugins:
     handlers:
       python:
         paths: [src]  # search packages in the src folder
+- mkdocs-jupyter
 
 markdown_extensions:
   - attr_list
