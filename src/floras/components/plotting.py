@@ -3,10 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-sys.path.append('..')
-
 
 def plot_grid(grid, filename, cuts=[]):
+    plt.rcParams.update({"text.usetex": True,"font.family": "Helvetica"})
     tilesize = 1
     xs = np.linspace(0, grid.len_x * tilesize, grid.len_x + 1)
     ys = np.linspace(0, grid.len_y * tilesize, grid.len_y + 1)
@@ -32,9 +31,10 @@ def plot_grid(grid, filename, cuts=[]):
                 ax.text(
                     x + tilesize * 0.5,
                     y + tilesize * 0.5,
-                    r'$' + grid.labels[(j, i)] + '$',
-                    fontsize=25,
-                    rotation=0
+                    r'$' + grid.labels[(j, i)][0] + '$',
+                    fontsize=25, rotation=0,
+                    horizontalalignment='center', verticalalignment='center',
+                    rotation_mode='anchor'
                 )
 
     # grid lines
@@ -47,6 +47,8 @@ def plot_grid(grid, filename, cuts=[]):
     for cut in cuts:
         startxy = cut[0]
         endxy = cut[1]
+        # from ipdb import set_trace as st
+        # st()
         delx = startxy[0] - endxy[0]
         dely = startxy[1] - endxy[1]
         if delx == 0:

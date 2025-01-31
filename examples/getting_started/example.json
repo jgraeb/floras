@@ -1,15 +1,15 @@
 {
-      "mazefile" : "maze.txt",
+      "mazefile" : "gridworld.txt",
       "init" : ["(2, 2)"],
       "goals" : ["(0, 0)", "(0, 4)"],
       "labels" : {
         "(0,2)": ["I"],
         "(2,0)": ["I"],
         "(2,4)": ["I"],
-        "(0,0)": ["goal"],
-        "(0,4)": ["goal"]
+        "(0,0)": ["T"],
+        "(0,4)": ["T"]
       },
-      "sysformula" : "F(goal)",
+      "sysformula" : "F(T)",
       "testformula" : "F(I)",
       "type": "static"
 

@@ -7,6 +7,8 @@ from floras.components.transition_system import TransitionSystemInput, TranSys
 from floras.components.product import sync_prod
 from floras.optimization.optimize import solve
 from floras.components.utils import get_states_and_transitions_from_file
+from floras.components.grid import Grid
+from floras.components.plotting import plot_grid
 
 rows = 3
 cols = 5
@@ -33,7 +35,7 @@ states_list, transitions_dict = get_states_and_transitions_from_file(gridfile)
 # defining the labeled states
 labels_dict = {
       (2, 0): ['I'], (0, 2): ['I'], (2, 4): ['I'],
-      (0, 0): ['goal'], (0, 4): ['goal']
+      (0, 0): ['T'], (0, 4): ['T']
     }
 
 # defining the initial state
@@ -48,7 +50,7 @@ transition_system_input = TransitionSystemInput(
 transys = TranSys(transition_system_input)
 
 # system objective
-sys_formula = 'F(goal)'  # 'F(goal)' or '<> goal' for 'eventually goal'
+sys_formula = 'F(T)'  # 'F(T)' or '<> T' for 'eventually T'
 sys_aut, spot_aut_sys = get_system_automaton(sys_formula)
 
 # test objective
@@ -64,3 +66,13 @@ virtual = sync_prod(transys, prod_aut)
 
 # set up and solve the optimization problem
 d, flow = solve(virtual, transys, prod_aut, virtual_sys, case='static')
+
+# Set up to plot the result
+colors_dict = {(0,0): '#ffb000', (0,4): '#ffb000', (2,0): '#648fff', (0,2): '#648fff', (2,4): '#648fff'}
+gridfile = "gridworld.txt"
+grid = Grid(gridfile, labels_dict, colors_dict)
+obstacles = [(cut[0][0],cut[1][0]) for cut in d]
+
+# plot and save the result
+resultfile = 'resultfile'
+plot_grid(grid, resultfile, obstacles)
