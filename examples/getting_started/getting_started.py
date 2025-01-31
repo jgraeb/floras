@@ -8,22 +8,23 @@ from floras.components.product import sync_prod
 from floras.optimization.optimize import solve
 from floras.components.utils import get_states_and_transitions_from_file
 
-rows = 3; cols = 5
+rows = 3
+cols = 5
 
 # defining the state for each cell on the grid
-states_list = [(i,j) for i in range(0,rows) for j in range(0,cols)]
+states_list = [(i, j) for i in range(0, rows) for j in range(0, cols)]
 
 # defining the transitions from each cell on the grid
 transitions_dict = {}
 for i in range(rows):
-        for j in range(cols):
-            cell = (i, j)
-            neighbors = [
-                  (i + di, j + dj) for di, dj in
-                  [(-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)]
-                  if 0 <= i + di < rows and 0 <= j + dj < cols
-            ]
-            transitions_dict[cell] = neighbors
+    for j in range(cols):
+        cell = (i, j)
+        neighbors = [
+                (i + di, j + dj) for di, dj in
+                [(-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)]
+                if 0 <= i + di < rows and 0 <= j + dj < cols
+        ]
+        transitions_dict[cell] = neighbors
 
 # alternatively, you can use the gridfile
 gridfile = "gridworld.txt"
@@ -36,7 +37,7 @@ labels_dict = {
     }
 
 # defining the initial state
-init_list = [(2,2)]
+init_list = [(2, 2)]
 
 # creating the transition system input
 transition_system_input = TransitionSystemInput(
