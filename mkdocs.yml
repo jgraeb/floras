@@ -4,8 +4,7 @@ theme:
   name: material
 
 nav:
-  - Home:
-    - Welcome: index.md
+  - Home: index.md
   - Installing: installing.md
   - Getting Started: getting_started.ipynb
   - API:
@@ -15,8 +14,7 @@ nav:
     - Optimization: optimization.md
   - Case Studies:
     - Package Delivery: packagedelivery.md
-  - Contributing:
-    - Contributing: contributing.md
+  - Contributing: contributing.md
 
 plugins:
 - mkdocstrings:
