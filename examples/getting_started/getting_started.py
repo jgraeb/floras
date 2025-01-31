@@ -68,10 +68,13 @@ virtual = sync_prod(transys, prod_aut)
 d, flow = solve(virtual, transys, prod_aut, virtual_sys, case='static')
 
 # Set up to plot the result
-colors_dict = {(0,0): '#ffb000', (0,4): '#ffb000', (2,0): '#648fff', (0,2): '#648fff', (2,4): '#648fff'}
+colors_dict = {
+    (0, 0): '#ffb000', (0, 4): '#ffb000', (2, 0): '#648fff',
+    (0, 2): '#648fff', (2, 4): '#648fff', (2, 2): '#dc267f'
+}
 gridfile = "gridworld.txt"
 grid = Grid(gridfile, labels_dict, colors_dict)
-obstacles = [(cut[0][0],cut[1][0]) for cut in d]
+obstacles = [(cut[0][0], cut[1][0]) for cut in d]
 
 # plot and save the result
 resultfile = 'resultfile'

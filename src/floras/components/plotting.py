@@ -1,11 +1,10 @@
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 
 def plot_grid(grid, filename, cuts=[]):
-    plt.rcParams.update({"text.usetex": True,"font.family": "Helvetica"})
+    plt.rcParams.update({"text.usetex": True, "font.family": "Helvetica"})
     tilesize = 1
     xs = np.linspace(0, grid.len_x * tilesize, grid.len_x + 1)
     ys = np.linspace(0, grid.len_y * tilesize, grid.len_y + 1)
@@ -47,8 +46,6 @@ def plot_grid(grid, filename, cuts=[]):
     for cut in cuts:
         startxy = cut[0]
         endxy = cut[1]
-        # from ipdb import set_trace as st
-        # st()
         delx = startxy[0] - endxy[0]
         dely = startxy[1] - endxy[1]
         if delx == 0:
