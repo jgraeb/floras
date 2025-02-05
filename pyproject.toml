@@ -6,14 +6,21 @@ build-backend = "pdm.backend"
 name = "floras"
 description = "A package for network flow-based test synthesis."
 authors = [
-    {name = "floras developers", email = "tbd"},
+    {name = "floras developers", email = "tulip@tulip-control.org"},
 ]
+readme = "README.md"
 license = {text = "BSD-3-Clause"}
 classifiers = [
-    "Topic :: Scientific/Engineering"
+    "License :: OSI Approved :: BSD License",
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
 ]
-keywords = ["test synthesis"]
-
+dynamic = ["version"]
+keywords = ["test synthesis", "network flow", "testing"]
 dependencies = [
     "numpy>=1.24.1",
     "gurobipy==11.0.3",
@@ -27,8 +34,13 @@ dependencies = [
     "jupyter>=1.1.1",
 ]
 requires-python = ">=3.10,<3.13"
-version = "0.0.0"
-readme = "README.md"
+
+[project.urls]
+Homepage = "https://github.com/tulip-control/floras"
+"Bug Tracker" = "https://github.com/tulip-control/floras/issues"
+"Documentation" = "https://floras.sourceforge.io/"
+"Source Code" = "https://github.com/tulip-control/floras"
+
 
 [project.optional-dependencies]
 docs = [
@@ -50,6 +62,7 @@ find = {}  # Scan the project directory with the default parameters
 
 [tool.pdm]
 package-dir = "src"
+version = { source = "file", path = "src/floras/__version__.py" }
 
 [tool.pdm.build]
 package-dir = "src"
