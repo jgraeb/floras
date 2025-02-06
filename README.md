@@ -34,7 +34,21 @@ pip install pygraphviz
 ```
 
 ## Installing Floras
+### From Pypi
+Make sure you have pygraphviz installed. Then you can install floras using pip by running
+```
+pip install floras
+```
+Next, install [spot](https://spot.lre.epita.fr/) either by running:
+```
+floras fetch-spot
+```
+If you are using [conda](https://conda.org/), instead of the above command, you can install spot directly from [conda-forge](https://conda-forge.org/) (this is faster). This does not work on MacOS, please use the above command to build spot in that case.
+```
+conda install -c conda-forge spot
+```
 
+### From Source
 To install floras, please clone the repository:
 ```
 git clone https://github.com/tulip-control/floras.git
@@ -50,9 +64,9 @@ pdm install
 ```
 Next, install [spot](https://spot.lre.epita.fr/) by running:
 ```
-pdm run python get_spot.py
+pdm run floras fetch-spot
 ```
-If you are using [conda](https://conda.org/), instead of the above command, you can install spot directly from [conda-forge](https://conda-forge.org/) (this is faster). This does not work on MacOS, please use the above command to build spot in that case.
+Or if you are using conda (does not work on Mac), simply run:
 ```
 conda install -c conda-forge spot
 ```
