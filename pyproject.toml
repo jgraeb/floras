@@ -32,6 +32,7 @@ dependencies = [
     "tulip==1.4.0",
     "pygraphviz>=1.13",
     "jupyter>=1.1.1",
+    "typer>=0.15.1",
 ]
 requires-python = ">=3.10,<3.13"
 
@@ -55,8 +56,8 @@ tests = [
 ]
 
 [project.scripts]
-from_json = "floras.main:main"
-fetch_spot = "install_utils:fetch_spot"
+floras = "floras.cli:app"
+from_json = "floras.main:main"  # This will be removed in the next release
 
 [tool.setuptools.packages]
 find = {}  # Scan the project directory with the default parameters

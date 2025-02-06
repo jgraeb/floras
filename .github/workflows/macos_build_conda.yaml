@@ -62,7 +62,7 @@ jobs:
       - name: Build and install Spot
         if: steps.cache-spot.outputs.cache-hit != 'true'
         run: |
-          pdm run python get_spot.py
+          pdm run floras fetch-spot
 
       - name : Install Package for Testing
         run : pdm install -G tests

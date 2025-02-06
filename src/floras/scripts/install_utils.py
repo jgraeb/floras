@@ -26,7 +26,7 @@ def is_hash_correct(filename):
     return SPOT_SHA256 == hashlib.sha256(open(filename, 'rb').read()).hexdigest()
 
 
-def fetch_spot():
+def download_and_install_spot():
     filename = SPOT_TARBALL
     fetch(SPOT_URL, filename)
     untar(filename)
