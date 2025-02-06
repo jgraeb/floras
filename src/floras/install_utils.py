@@ -17,8 +17,8 @@ SPOT_TARBALL: _ty.Final = f'spot-{SPOT_VERSION}.tar.gz'
 SPOT_URL: _ty.Final = (
     'http://www.lrde.epita.fr/dload/spot/'f'spot-{SPOT_VERSION}.tar.gz'
 )
-FILE_PATH = os.path.dirname(os.path.realpath(__file__))
-SPOT_PATH = os.path.join(FILE_PATH, f'spot-{SPOT_VERSION}')
+CUR_PATH = os.getcwd()
+SPOT_PATH = os.path.join(CUR_PATH, f'spot-{SPOT_VERSION}')
 ENV_PATH = sys.prefix
 
 
@@ -77,10 +77,7 @@ def make_spot():
     path = SPOT_PATH
     cmd = f'./configure --prefix {ENV_PATH}'
     print(f'running: `{cmd}` in {path}')
+    print(path)
     subprocess.check_call(cmd, shell=True, cwd=path)
     subprocess.check_call(['make'], cwd=path)
     subprocess.check_call(['make', 'install'], cwd=path)
-
-
-if __name__ == '__main__':
-    fetch_spot()

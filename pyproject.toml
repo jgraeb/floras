@@ -56,6 +56,7 @@ tests = [
 
 [project.scripts]
 from_json = "floras.main:main"
+fetch_spot = "install_utils:fetch_spot"
 
 [tool.setuptools.packages]
 find = {}  # Scan the project directory with the default parameters
